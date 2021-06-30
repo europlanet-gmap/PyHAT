@@ -26,6 +26,18 @@ jobs:
         uses: EthanSK/git-branch-name-action@v1
       - name: Echo the branch name
         run: echo "Branch name ${GIT_BRANCH_NAME}"
+      - name: check base ref
+        run: echo "base is master"k
+        if: ${{ github.base_ref == 'master' }}
+      - name: check base ref
+        run: echo "base is dev"
+        if: ${{ github.base_ref == 'dev' }}
+      - name: check head ref
+        run: echo "head is master"
+        if: ${{ github.head_ref == 'master' }}
+      - name: check head ref
+        run: echo "head is dev"
+        if: ${{ github.head_ref == 'dev' }}
       - uses: actions/checkout@v2
       - name: Setup conda env
         uses: conda-incubator/setup-miniconda@v2
