@@ -39,32 +39,29 @@ jobs:
           environment-file: environment.yml
           python-version: ${{ matrix.python-version }}
       - name: Install Python Package
-        run: |
+        run:
           conda install pip setuptools
           conda install --quiet pytest pytest-cov nbsphinx
-          pip install coveralls
           python setup.py install
       - name: Check build environment
-        run: |
+        run:
           conda list
           conda info
       - name: Test Python Package
-        run: |
-          pytest --cov libpyhat
+        run:
+          pytest --cov libpyhat --cov-report=xml
+      - name: Upload Coverage
+        uses: codecov/codecov-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          fail_ci_if_error: true
+          verbose: true
       - name: Deploy on the master branch
         if: ${{ env.GIT_BRANCH_NAME == 'master' }}
-        run: |
+        run:
           echo 'We are on the master branch!'
           bash deployment/deploy.sh $PYTHON_VERSION
         shell: bash
       - name: Other branch message
         if: ${{ env.GIT_BRANCH_NAME != 'master' }}
         run: echo 'Not on the master branch - not deploying'
-
-#          coveralls
-#      - name: Upload Coverage
-#        uses: codecov/codecov-action@v1
-#        with:
-#          token: ${{ secrets.CODECOV_TOKEN }}
-#          fail_ci_if_error: true
-#          verbose: true
