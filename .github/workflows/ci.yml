@@ -26,7 +26,7 @@ jobs:
         uses: EthanSK/git-branch-name-action@v1
       - name: Echo the branch name
         run: echo "Branch name ${GIT_BRANCH_NAME}"
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v2     
       - name: Setup conda env
         uses: conda-incubator/setup-miniconda@v2
         with: 
@@ -39,29 +39,34 @@ jobs:
           environment-file: environment.yml
           python-version: ${{ matrix.python-version }}
       - name: Install Python Package
-        run:
+        run: |
           conda install pip setuptools
           conda install --quiet pytest pytest-cov nbsphinx
           python setup.py install
       - name: Check build environment
-        run:
+        run: |
           conda list
           conda info
       - name: Test Python Package
-        run:
-          pytest --cov libpyhat --cov-report=xml
+        run: |
+          pytest --cov libpyhat
       - name: Upload Coverage
         uses: codecov/codecov-action@v1
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
           verbose: true
-      - name: Deploy on the master branch
+      - name: Deploy
         if: ${{ env.GIT_BRANCH_NAME == 'master' }}
-        run:
-          echo 'We are on the master branch!'
-          bash deployment/deploy.sh $PYTHON_VERSION
-        shell: bash
-      - name: Other branch message
-        if: ${{ env.GIT_BRANCH_NAME != 'master' }}
-        run: echo 'Not on the master branch - not deploying'
+
+        run: |
+          echo "We are on the master branch - deploying!"
+          conda deactivate
+          conda install conda-build anaconda-client
+          conda config --set anaconda_upload yes
+          pwd
+          ls -a
+          echo "Here is what the build command (without token) looks like:"
+          echo conda build --python ${{ matrix.python-version }} recipe
+          conda build --token ${{ secrets.CONDA_UPLOAD_TOKEN }} --python ${{ matrix.python-version }} recipe
+              

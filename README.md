@@ -1,15 +1,10 @@
 
 ## Status
 
-| OS    | Status |
-|-------|--------|
-| OSX   | [![Build Status](https://travis-ci.org/USGS-Astrogeology/PyHAT.svg?branch=dev)](https://travis-ci.org/USGS-Astrogeology/PyHAT) |
-|Linux  | [![Build Status](https://travis-ci.org/USGS-Astrogeology/PyHAT.svg?branch=dev)](https://travis-ci.org/USGS-Astrogeology/PyHAT) |
-|Windows| [![Build status](https://ci.appveyor.com/api/projects/status/orfb1txhicspo7ap/branch/dev?svg=true)](https://ci.appveyor.com/project/jlaura/pyhat/branch/dev)|
+[![](http://github-actions.40ants.com/USGS-Astrogeology/PyHAT/matrix.svg)](https://github.com/USGS-Astrogeology/PyHAT)
 
 
 [![Coverage Status](https://coveralls.io/repos/github/USGS-Astrogeology/PyHAT/badge.svg?branch=dev)](https://coveralls.io/github/USGS-Astrogeology/PyHAT?branch=dev)
-[![Join the chat at https://gitter.im/USGS-Astrogeology/pyhat](https://badges.gitter.im/USGS-Astrogeology/pyhat.svg)](https://gitter.im/USGS-Astrogeology/pyhat?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 # Installation - For Users
   - Install [Anaconda Python](https://www.continuum.io/downloads).  Be sure to get Python 3.x
