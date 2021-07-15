@@ -49,7 +49,7 @@ jobs:
           conda info
       - name: Test Python Package
         run: |
-          pytest --cov libpyhat
+          pytest --cov libpyhat --cov-report=xml
       - name: Upload Coverage
         uses: codecov/codecov-action@v1
         with:
