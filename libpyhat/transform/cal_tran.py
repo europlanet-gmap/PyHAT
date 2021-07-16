@@ -1,3 +1,5 @@
+import pandas as pd
+
 from libpyhat.transform.lra import low_rank_align as LRA
 import numpy as np
 from sklearn.cross_decomposition import CCA, PLSRegression
@@ -60,6 +62,24 @@ class cal_tran:
 
     def apply_transform(self,C):
         return self.ct_obj.apply_transform(C)
+    def save_transform(self, outfile, wvls):
+        print('Saving transform to '+outfile)
+        if self.method == 'Ratio':
+            self.ct_obj.ratio_vect.to_csv(outfile)
+        elif self.method == 'PDS - Piecewise DS':
+            if self.ct_obj.win_size == 1:
+                print('Window size is 1. Saving the diagonal of the transform matrix only.')
+                out_vect = self.ct_obj.proj_to_B.diagonal()
+                out_vect = pd.DataFrame(out_vect,index=wvls)
+                out_vect.to_csv(outfile)
+
+            else:
+                print('Saving transform matrix (this can be large!)')
+                tmp = pd.DataFrame(self.ct_obj.proj_to_B, columns=wvls,index=wvls)
+                tmp.to_csv(outfile)
+        else:
+            print('Save transform not yet implemented for '+self.method)
+
 
 class no_transform:
     def derive_transform(self,A,B):
