@@ -38,6 +38,7 @@ jobs:
           activate-environment: test_env
           environment-file: environment.yml
           python-version: ${{ matrix.python-version }}
+          fetch-depth: '2'
       - name: Install Python Package
         run: |
           conda install pip setuptools
@@ -53,9 +54,8 @@ jobs:
       - name: Upload Coverage
         uses: codecov/codecov-action@v1
         with:
-          token: ${{ secrets.CODECOV_TOKEN }}
           fail_ci_if_error: true
-          verbose: true
+          verbose: false
       - name: Deploy
         if: ${{ env.GIT_BRANCH_NAME == 'master' }}
 

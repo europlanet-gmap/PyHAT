@@ -3,8 +3,7 @@
 
 [![](http://github-actions.40ants.com/USGS-Astrogeology/PyHAT/matrix.svg)](https://github.com/USGS-Astrogeology/PyHAT)
 
-
-[![Coverage Status](https://coveralls.io/repos/github/USGS-Astrogeology/PyHAT/badge.svg?branch=dev)](https://coveralls.io/github/USGS-Astrogeology/PyHAT?branch=dev)
+[![codecov](https://codecov.io/gh/USGS-Astrogeology/PyHAT/branch/master/graph/badge.svg?token=chD2TczRZn)](https://codecov.io/gh/USGS-Astrogeology/PyHAT)
 
 # Installation - For Users
   - Install [Anaconda Python](https://www.continuum.io/downloads).  Be sure to get Python 3.x
