@@ -148,19 +148,19 @@ def test_dimred_PCA():
     np.testing.assert_array_almost_equal(expected_expl_var, dimred_obj.explained_variance_ratio_)
     np.testing.assert_array_almost_equal(expected_scores,np.array(df['PCA (wvl)'].iloc[0,:]))
 
-def test_dimred_NMF():
+def test_dimred_NNMF():
     df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
     df['wvl'] = df['wvl'] - 1000 #make some values negative to test adding a constant
     dim_red.check_positive(df['wvl'])
     params = {'n_components': 3,
         'random_state': 0,
         'add_constant': True}
-    df, dimred_obj = dim_red.dim_red(df, 'wvl', 'NMF', [], params)
+    df, dimred_obj = dim_red.dim_red(df, 'wvl', 'NNMF', [], params)
     expected_comps = [10.27191532, 34.62489686, 3.06822373]
     expected_scores = [49.42458628, 3.9910722, 27.03100371]
-    assert df['NMF (wvl)'].shape == (103,3)
+    assert df['NNMF (wvl)'].shape == (103,3)
     np.testing.assert_array_almost_equal(expected_comps, dimred_obj.components_[:,0])
-    np.testing.assert_array_almost_equal(expected_scores,np.array(df['NMF (wvl)'].iloc[0,:]))
+    np.testing.assert_array_almost_equal(expected_scores,np.array(df['NNMF (wvl)'].iloc[0,:]))
 
 def test_dimred_LDA():
 
