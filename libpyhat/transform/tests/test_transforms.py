@@ -188,11 +188,12 @@ def test_dimred_LDA_withRealWorldData():
     #Set up the parameters for the LDA algorithm
     #There are only two labels/categories 'Andesite' and 'Basalt'
     #So there can only be a single component
-    params = {'n_components': 1}
+    params = {}
+    kws    = {'n_components': 1}
     
     #If the basalt and andesite spectra are distinct from one another
     #LDA should should present us with distinct clusters
-    df, dimred_obj = dim_red.dim_red(df, 'wvl', 'LDA', [], params)
+    df, dimred_obj = dim_red.dim_red(df, 'wvl', 'LDA', params=params, kws=kws, ycol='Geologic name')
     
     #Fine the indicies that correspond to the spectra and LDA results
     #for the two labeled rock types
