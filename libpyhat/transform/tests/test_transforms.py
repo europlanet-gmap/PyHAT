@@ -188,14 +188,14 @@ def test_dimred_NMF_withRealWorldData():
     
     #Simple test is to check the centers of the clusters. They should
     #be distinct enough, and this was verified visually in writing the test.
-    and_center = np.mean(np.array([df['NMF']['NMF-1'].values[ind_and], df['NMF']['NMF-2'].values[ind_and]]), axis=1)
-    bas_center = np.mean(np.array([df['NMF']['NMF-1'].values[ind_bas], df['NMF']['NMF-2'].values[ind_bas]]), axis=1)
+    and_center = np.mean(np.array([df['NMF (wvl)']['NMF-1'].values[ind_and], df['NMF (wvl)']['NMF-2'].values[ind_and]]), axis=1)
+    bas_center = np.mean(np.array([df['NMF (wvl)']['NMF-1'].values[ind_bas], df['NMF (wvl)']['NMF-2'].values[ind_bas]]), axis=1)
     np.testing.assert_almost_equal(np.abs(bas_center - and_center), [1286259.70275308, 1168764.92474652])
     
     #Also, let's make sure to do a simple check to make sure
     #the clusters are well seperated (by 2 standard deviations of their
     #average standard deviation along the two components).
-    stds = np.mean(np.std(df['NMF'].values[ind_bas], axis=0)) + np.mean(np.std(df['NMF'].values[ind_and], axis=0))
+    stds = np.mean(np.std(df['NMF (wvl)'].values[ind_bas], axis=0)) + np.mean(np.std(df['NMF (wvl)'].values[ind_and], axis=0))
     dist = np.linalg.norm(np.vstack([and_center, bas_center]))
     np.testing.assert_array_less(np.array([2*stds]), np.array([dist]))
 
