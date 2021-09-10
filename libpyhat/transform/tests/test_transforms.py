@@ -166,14 +166,16 @@ def test_dimred_NMF_withRealWorldData():
     #Open the test dataset, which contains LIBS library spectra
     df = pd.read_csv(get_path('labeled_LIBS_testfile.csv'), header=[0, 1])
     
+    #NMF requires all positive values, let's set the floor to 0
+    df['wvl'] = np.where(df['wvl'].values<0, 0, df['wvl'].values)
+    
     #Set up the parameters for the NMF algorithm
-    #'add_constant' allows NMF to offset the spectra when there are 
-    #negative values present. The number of components and iterations
-    #are increased because NMF doesn't tend to converge nicely. Might need
+    #The number of components and iterations are increased because NMF 
+    #doesn't tend to converge nicely with this dataset. Might need
     #more andesite samples to get it behave or extend the number of 
     #wavelengths that are fed to it.
     params = {}
-    kws    = {'add_constant':True, 'n_components':2, 'max_iter':20000}
+    kws    = {'n_components':2, 'max_iter':20000}
     
     #Run NMF
     df, dimred_obj = dim_red.dim_red(df, 'wvl', 'NMF', params=params, kws=kws, ycol='Geologic name')
