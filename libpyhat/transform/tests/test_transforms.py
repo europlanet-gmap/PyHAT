@@ -160,8 +160,44 @@ def test_dimred_NMF():
     np.testing.assert_array_almost_equal(expected_comps, dimred_obj.components_[:,0])
     np.testing.assert_array_almost_equal(expected_scores,np.array(df['NMF (wvl)'].iloc[0,:]))
 
-def test_dimred_LDA():
+def test_dimred_NMF_withRealWorldData():
+    '''Tests the LDA function using real world labeled LIBS data.'''
+    
+    #Open the test dataset, which contains LIBS library spectra
+    df = pd.read_csv(get_path('labeled_LIBS_testfile.csv'), header=[0, 1])
+    
+    #Set up the parameters for the NMF algorithm
+    #'add_constant' allows NMF to offset the spectra when there are 
+    #negative values present. The number of components and iterations
+    #are increased because NMF doesn't tend to converge nicely. Might need
+    #more andesite samples to get it behave or extend the number of 
+    #wavelengths that are fed to it.
+    params = {}
+    kws    = {'add_constant':True, 'n_components':2, 'max_iter':20000}
+    
+    #Run NMF
+    df, dimred_obj = dim_red.dim_red(df, 'wvl', 'NMF', params=params, kws=kws, ycol='Geologic name')
+    
+    #Find the indicies that correspond to the spectra and NMF results
+    #for the two labeled rock types
+    ind_bas = np.where(df['Geologic name'].values=='Basalt')[0]
+    ind_and = np.where(df['Geologic name'].values=='Andesite')[0]
+    
+    #Simple test is to check the centers of the clusters. They should
+    #be distinct enough, and this was verified visually in writing the test.
+    and_center = np.mean(np.array([df['NMF']['NMF-1'].values[ind_and], df['NMF']['NMF-2'].values[ind_and]]), axis=1)
+    bas_center = np.mean(np.array([df['NMF']['NMF-1'].values[ind_bas], df['NMF']['NMF-2'].values[ind_bas]]), axis=1)
+    np.testing.assert_almost_equal(np.abs(bas_center - and_center), [1286259.70275308, 1168764.92474652])
+    
+    #Also, let's make sure to do a simple check to make sure
+    #the clusters are well seperated (by 2 standard deviations of their
+    #average standard deviation along the two components).
+    stds = np.mean(np.std(df['NMF'].values[ind_bas], axis=0)) + np.mean(np.std(df['NMF'].values[ind_and], axis=0))
+    dist = np.linalg.norm(np.vstack([and_center, bas_center]))
+    np.testing.assert_array_less(np.array([2*stds]), np.array([dist]))
 
+def test_dimred_LDA():
+    
     df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
     kws = {'n_clusters': 5,
            'n_init': 10,
@@ -195,7 +231,7 @@ def test_dimred_LDA_withRealWorldData():
     #LDA should should present us with distinct clusters
     df, dimred_obj = dim_red.dim_red(df, 'wvl', 'LDA', params=params, kws=kws, ycol='Geologic name')
     
-    #Fine the indicies that correspond to the spectra and LDA results
+    #Find the indicies that correspond to the spectra and LDA results
     #for the two labeled rock types
     ind_bas = np.where(df['Geologic name'].values=='Basalt')[0]
     ind_and = np.where(df['Geologic name'].values=='Andesite')[0]
