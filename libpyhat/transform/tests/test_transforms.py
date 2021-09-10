@@ -1,4 +1,4 @@
-import numpy as np
+\import numpy as np
 import pandas as pd
 from libpyhat.examples import get_path
 import libpyhat.transform.deriv as deriv
@@ -174,8 +174,9 @@ def test_dimred_NMF_withRealWorldData():
     #doesn't tend to converge nicely with this dataset. Might need
     #more andesite samples to get it behave or extend the number of 
     #wavelengths that are fed to it.
+    #NMF won't run in PyHAT without the add_constant param defined
     params = {}
-    kws    = {'n_components':2, 'max_iter':20000}
+    kws    = {'add_constant':False, 'n_components':2, 'max_iter':20000}
     
     #Run NMF
     df, dimred_obj = dim_red.dim_red(df, 'wvl', 'NMF', params=params, kws=kws, ycol='Geologic name')
