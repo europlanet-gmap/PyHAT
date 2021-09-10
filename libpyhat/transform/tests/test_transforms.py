@@ -1,4 +1,4 @@
-\import numpy as np
+import numpy as np
 import pandas as pd
 from libpyhat.examples import get_path
 import libpyhat.transform.deriv as deriv
