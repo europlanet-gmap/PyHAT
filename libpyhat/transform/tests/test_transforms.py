@@ -190,7 +190,7 @@ def test_dimred_NMF_withRealWorldData():
     #be distinct enough, and this was verified visually in writing the test.
     and_center = np.mean(np.array([df['NMF (wvl)']['NMF-1'].values[ind_and], df['NMF (wvl)']['NMF-2'].values[ind_and]]), axis=1)
     bas_center = np.mean(np.array([df['NMF (wvl)']['NMF-1'].values[ind_bas], df['NMF (wvl)']['NMF-2'].values[ind_bas]]), axis=1)
-    np.testing.assert_almost_equal(np.abs(bas_center - and_center), [1286259.70275308, 1168764.92474652])
+    np.testing.assert_almost_equal(np.abs(bas_center - and_center), [1316662.64123436, 1196221.16644762])
     
     #Also, let's make sure to do a simple check to make sure
     #the clusters are well seperated (by 2 standard deviations of their
