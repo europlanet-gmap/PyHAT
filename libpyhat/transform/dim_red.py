@@ -5,6 +5,8 @@ from sklearn.manifold import LocallyLinearEmbedding
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.decomposition import NMF
 from libpyhat.transform.dim_reductions.mnf import MNF
+from libpyhat.transform.dim_reductions.lfda import LFDA
+import numpy as np
 #This function does dimensionality reduction on a data frame full of spectra. A number of different methos can be chosen
 
 def dim_red(df, xcol, method, params, kws, load_fit=None, ycol=None):
@@ -22,11 +24,13 @@ def dim_red(df, xcol, method, params, kws, load_fit=None, ycol=None):
         do_dim_red = JADE(*params, **kws)
     if method == 'LDA':
         do_dim_red = LinearDiscriminantAnalysis(*params, **kws)
-    if method == 'NMF':
+    if method == 'NNMF':
         add_const = kws.pop('add_constant')
         do_dim_red = NMF(*params, **kws)
     if method == 'MNF':
         do_dim_red = MNF(*params, **kws)
+    if method == 'LFDA':
+        do_dim_red = LFDA(*params, **kws)
 
     if load_fit:
         do_dim_red = load_fit
@@ -36,9 +40,18 @@ def dim_red(df, xcol, method, params, kws, load_fit=None, ycol=None):
                 #find the multi-index that matches the specified single index
                 ycol_tuple = [a for a in df.columns.values if ycol in a][0]
                 ydata = df[ycol_tuple]
+                if method == 'LDA':
+                    #Check to make sure # of components isn't too high for LDA
+                    max_nc = np.min([len(np.unique(ydata))-1,len(df[xcol].columns)])
+                    if do_dim_red.n_components > max_nc:
+                       print("n_components cannot be larger than min(n_features, n_classes - 1)")
+                       print('n_features = '+str(len(df[xcol].columns)))
+                       print('n_classes-1 = '+str(len(np.unique(ydata))-1))
+                       print("Setting n_components from "+str(do_dim_red.n_components)+" to "+str(max_nc))
+                       do_dim_red.n_components = max_nc
                 do_dim_red.fit(xdata,ydata)
             else:
-                if method == 'NMF':
+                if method == 'NNMF':
                     if add_const:
                         if xdata.min().min()<0:
                             xdata = xdata-xdata.min().min()
@@ -55,10 +68,10 @@ def dim_red(df, xcol, method, params, kws, load_fit=None, ycol=None):
 
     for i in list(range(1, dim_red_result.shape[
                                1] + 1)):  # will need to revisit this for other methods that don't use n_components to make sure column names still mamke sense
-        df[(method+' ('+xcol+')', method+'-'+str(i))] = dim_red_result[:, i - 1]
+        df[(method+' ('+str(xcol)+')', method+'-'+str(i))] = dim_red_result[:, i - 1]
 
     return df, do_dim_red
 
 def check_positive(data):
     if data.min().min()<0:
-        print('NMF will not work with data containing negative values!')
+        print('NNMF will not work with data containing negative values!')

@@ -91,6 +91,8 @@ def test_dimred_JADE():
     np.testing.assert_almost_equal(expected_loadings, np.squeeze(np.array(dimred_obj.ica_jade_loadings[:,0])))
     np.testing.assert_array_almost_equal(expected_scores, np.array(df['JADE-ICA (wvl)'].iloc[0,:]))
 
+
+
 def test_dimred_LLE():
     df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
 
@@ -146,19 +148,19 @@ def test_dimred_PCA():
     np.testing.assert_array_almost_equal(expected_expl_var, dimred_obj.explained_variance_ratio_)
     np.testing.assert_array_almost_equal(expected_scores,np.array(df['PCA (wvl)'].iloc[0,:]))
 
-def test_dimred_NMF():
+def test_dimred_NNMF():
     df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
     df['wvl'] = df['wvl'] - 1000 #make some values negative to test adding a constant
     dim_red.check_positive(df['wvl'])
     params = {'n_components': 3,
         'random_state': 0,
         'add_constant': True}
-    df, dimred_obj = dim_red.dim_red(df, 'wvl', 'NMF', [], params)
+    df, dimred_obj = dim_red.dim_red(df, 'wvl', 'NNMF', [], params)
     expected_comps = [10.27191532, 34.62489686, 3.06822373]
     expected_scores = [49.42458628, 3.9910722, 27.03100371]
-    assert df['NMF (wvl)'].shape == (103,3)
+    assert df['NNMF (wvl)'].shape == (103,3)
     np.testing.assert_array_almost_equal(expected_comps, dimred_obj.components_[:,0])
-    np.testing.assert_array_almost_equal(expected_scores,np.array(df['NMF (wvl)'].iloc[0,:]))
+    np.testing.assert_array_almost_equal(expected_scores,np.array(df['NNMF (wvl)'].iloc[0,:]))
 
 def test_dimred_NMF_withRealWorldData():
     '''Tests the LDA function using real world labeled LIBS data.'''
@@ -202,6 +204,7 @@ def test_dimred_NMF_withRealWorldData():
 def test_dimred_LDA():
     
     df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
+
     kws = {'n_clusters': 5,
            'n_init': 10,
            'max_iter': 100,
@@ -247,6 +250,44 @@ def test_dimred_LDA_withRealWorldData():
     #the clusters are well seperated (by 2 standard deviations).
     stds = np.std(df['LDA']['LDA-1'].values[ind_bas]) + np.std(df['LDA']['LDA-1'].values[ind_and])
     np.testing.assert_array_less(np.array([2*stds]), np.array([dist]))
+    
+def test_dimred_LFDA():
+    #df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
+    df = pd.read_csv(get_path('iris.csv'))
+    params = {'r': 3, 'metric': 'plain', 'knn': 5}
+    cols = list(df.columns[1:5])
+    df, dimred_obj = dim_red.dim_red(df, cols, 'LFDA', [], params, ycol = 'Species')
+
+    expected_Z =[[1.17658471,-5.73187812,-0.70134324], [1.26725406,-5.23944184,-0.84506262]]
+    expected_Tr = [[0.15532635, -0.67208433, -0.47664679], [-0.24346924, -0.71603884, 0.47809747]]
+    expected_values = [-0.70134324, -0.84506262, -0.64763099, -0.66074162, -0.60586882]
+    np.testing.assert_array_almost_equal(expected_Z,dimred_obj.Z[0:2,:])
+    np.testing.assert_array_almost_equal(expected_Tr, dimred_obj.Tr[0:2, :])
+    np.testing.assert_array_almost_equal(expected_values, df.iloc[0:5,-1])
+
+    df = pd.read_csv(get_path('iris.csv'))
+    params = {'r': 3, 'metric': 'weighted', 'knn': 5}
+    cols = list(df.columns[1:5])
+    df, dimred_obj = dim_red.dim_red(df, cols, 'LFDA', [], params, ycol='Species')
+
+    expected_Z = [[40.24100588, -39.75445661, -2.99501843], [43.34203702, -36.33907748, -3.60875811]]
+    expected_Tr = [[5.3124001, -4.66135999, -2.03547398], [-8.32702232, -4.96621426, 2.04166896]]
+    expected_values = [-2.99501843, -3.60875811, -2.76564543, -2.82163311, -2.58730414]
+    np.testing.assert_array_almost_equal(expected_Z, dimred_obj.Z[0:2, :])
+    np.testing.assert_array_almost_equal(expected_Tr, dimred_obj.Tr[0:2, :])
+    np.testing.assert_array_almost_equal(expected_values, df.iloc[0:5, -1])
+
+    df = pd.read_csv(get_path('iris.csv'))
+    params = {'r': 3, 'metric': 'orthonormalized', 'knn': 5}
+    cols = list(df.columns[1:5])
+    df, dimred_obj = dim_red.dim_red(df, cols, 'LFDA', [], params, ycol='Species')
+
+    expected_Z = [[-1.17658471, -6.20333752, 0.5894996 ], [-1.26725406, -5.71840297, 0.76816463]]
+    expected_Tr = [[-0.15532635, -0.73171269, 0.46949654], [0.24346924, -0.67718402, -0.54512867]]
+    expected_values = [0.5894996, 0.76816463, 0.54826003, 0.58978237, 0.48803708]
+    np.testing.assert_array_almost_equal(expected_Z, dimred_obj.Z[0:2, :])
+    np.testing.assert_array_almost_equal(expected_Tr, dimred_obj.Tr[0:2, :])
+    np.testing.assert_array_almost_equal(expected_values, df.iloc[0:5, -1])
 
 def test_dimred_MNF():
     df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])

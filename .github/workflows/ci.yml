@@ -60,6 +60,7 @@ jobs:
           verbose: false
       - name: Deploy
         if: ${{ env.GIT_BRANCH_NAME == 'master' }}
+
         run: |
           echo "We are on the master branch - deploying!"
           conda deactivate
@@ -71,5 +72,3 @@ jobs:
           echo conda build --python ${{ matrix.python-version }} recipe
           conda build --token ${{ secrets.CONDA_UPLOAD_TOKEN }} --python ${{ matrix.python-version }} recipe
               
-
-      
