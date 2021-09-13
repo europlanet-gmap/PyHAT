@@ -14,7 +14,6 @@ from libpyhat.transform.dim_reductions.mnf import MNF
 
 np.random.seed(1)
 
-
 def test_shift_spect():
     df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
     result = shift_spect.shift_spect(df, -1.0)
