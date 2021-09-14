@@ -11,72 +11,78 @@ import libpyhat.transform.norm as norm
 import libpyhat.transform.shift_spect as shift_spect
 import libpyhat.clustering.cluster as cluster
 from libpyhat.transform.dim_reductions.mnf import MNF
-np.random.seed(1)
 
+np.random.seed(1)
 
 def test_shift_spect():
     df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
-    result = shift_spect.shift_spect(df,-1.0)
+    result = shift_spect.shift_spect(df, -1.0)
     expected = [898.64928571, 973.62444444, 1034.46444444, 1004.54, 939.16222222]
-    np.testing.assert_array_almost_equal(expected,np.array(result['wvl'].iloc[0,0:5]))
-    assert result[('meta','Shift')].shape == (103,)
+    np.testing.assert_array_almost_equal(expected, np.array(result['wvl'].iloc[0, 0:5]))
+    assert result[('meta', 'Shift')].shape == (103,)
+
 
 def test_norm():
     df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
-    result = norm.norm(df,[[580,590],[590,600]],col_var='wvl')
-    np.testing.assert_almost_equal(result['wvl'].iloc[0,:].sum(), 2.0)
+    result = norm.norm(df, [[580, 590], [590, 600]], col_var='wvl')
+    np.testing.assert_almost_equal(result['wvl'].iloc[0, :].sum(), 2.0)
+
 
 def test_multiply_vector():
     df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
     result = multiply_vector.multiply_vector(df, get_path('vector.csv'))
     expected = [1646.12, 1548.12, 1656.12, 1656.12, 1732.12]
-    np.testing.assert_array_almost_equal(expected, np.array(result['wvl'].iloc[0,0:5]))
+    np.testing.assert_array_almost_equal(expected, np.array(result['wvl'].iloc[0, 0:5]))
 
     result = multiply_vector.multiply_vector(df, get_path('bad_vector.csv'))
     assert result == 0
 
+
 def test_meancenter():
     df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
-    result_df, mean_vect = meancenter.meancenter(df,'wvl')
+    result_df, mean_vect = meancenter.meancenter(df, 'wvl')
     expected = [-168.05398058, 579.71601942, 309.16601942, 709.21601942, -341.00398058]
-    expected_mv = [ 991.11398058, 1160.24990291, 1287.87126214, 931.56058252, 838.89067961]
-    np.testing.assert_array_almost_equal(expected, np.array(result_df['wvl'].iloc[0:5,0]))
+    expected_mv = [991.11398058, 1160.24990291, 1287.87126214, 931.56058252, 838.89067961]
+    np.testing.assert_array_almost_equal(expected, np.array(result_df['wvl'].iloc[0:5, 0]))
     np.testing.assert_array_almost_equal(expected_mv, np.array(mean_vect)[0:5])
 
-    #test providing the mean vector
+    # test providing the mean vector
     mean_vect.iloc[:] = 1
-    result_df2, mean_vect2 = meancenter.meancenter(df,'wvl',previous_mean=mean_vect)
+    result_df2, mean_vect2 = meancenter.meancenter(df, 'wvl', previous_mean=mean_vect)
     expected2 = np.array(expected) - 1.0
     expected_mv2 = [1., 1., 1., 1., 1.]
-    np.testing.assert_array_almost_equal(expected2, np.array(result_df2['wvl'].iloc[0:5,0]))
+    np.testing.assert_array_almost_equal(expected2, np.array(result_df2['wvl'].iloc[0:5, 0]))
     np.testing.assert_array_almost_equal(expected_mv2, np.array(mean_vect2)[0:5])
 
-    #test mismatched wvls
-    mean_vect.index = np.array(mean_vect.index,dtype=float) + 1.0
+    # test mismatched wvls
+    mean_vect.index = np.array(mean_vect.index, dtype=float) + 1.0
     result = meancenter.meancenter(df, 'wvl', previous_mean=mean_vect)
     assert result == 0
 
 
 def test_mask():
     df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
-    result = mask.mask(df,get_path('mask.csv'))
+    result = mask.mask(df, get_path('mask.csv'))
     assert result['wvl'].columns[0] == 586.049
     assert result['wvl'].columns[-1] == 589.869
-    assert result['wvl'].shape == (103,18)
-    assert result['masked'].shape == (103,26)
+    assert result['wvl'].shape == (103, 18)
+    assert result['masked'].shape == (103, 26)
+
 
 def test_interp():
     df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
-    result = interp.interp(df,[588, 590, 592, 594])
+    result = interp.interp(df, [588, 590, 592, 594])
     expected = [1637.58, 1104.47964286, 830.53321429, 857.77875]
-    assert result['wvl'].shape == (103,4)
-    np.testing.assert_array_almost_equal(expected, np.array(result['wvl'].iloc[0,:]))
+    assert result['wvl'].shape == (103, 4)
+    np.testing.assert_array_almost_equal(expected, np.array(result['wvl'].iloc[0, :]))
+
 
 def test_deriv():
     df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
     result = deriv.deriv(df)
     expected = [-0.08370717, 1.08648488, 0.83536337, 1.59556113, 0.13666476]
-    np.testing.assert_array_almost_equal(expected, np.array(result['wvl'].iloc[0:5,0]))
+    np.testing.assert_array_almost_equal(expected, np.array(result['wvl'].iloc[0:5, 0]))
+
 
 def test_dimred_JADE():
     df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
@@ -88,9 +94,8 @@ def test_dimred_JADE():
     expected_scores = [174708.34499912, 125682.55985134, 145155.40758151]
 
     assert df['JADE-ICA (wvl)'].shape == (103, 3)
-    np.testing.assert_almost_equal(expected_loadings, np.squeeze(np.array(dimred_obj.ica_jade_loadings[:,0])))
-    np.testing.assert_array_almost_equal(expected_scores, np.array(df['JADE-ICA (wvl)'].iloc[0,:]))
-
+    np.testing.assert_almost_equal(expected_loadings, np.squeeze(np.array(dimred_obj.ica_jade_loadings[:, 0])))
+    np.testing.assert_array_almost_equal(expected_scores, np.array(df['JADE-ICA (wvl)'].iloc[0, :]))
 
 
 def test_dimred_LLE():
@@ -105,7 +110,9 @@ def test_dimred_LLE():
 
     assert df['LLE (wvl)'].shape == (103, 3)
     np.testing.assert_almost_equal(expected_err, dimred_obj.reconstruction_error_)
-    np.testing.assert_array_almost_equal(np.abs(expected_scores), np.abs(np.array(df['LLE (wvl)'].iloc[0, :])),decimal=4)
+    np.testing.assert_array_almost_equal(np.abs(expected_scores), np.abs(np.array(df['LLE (wvl)'].iloc[0, :])),
+                                         decimal=4)
+
 
 def test_dimred_tSNE():
     df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
@@ -125,17 +132,20 @@ def test_dimred_tSNE():
     np.testing.assert_almost_equal(expected_div, dimred_obj.kl_divergence_)
     np.testing.assert_array_almost_equal(expected_scores, np.array(df['t-SNE (wvl)'].iloc[0, :]))
 
+
 def test_dimred_FastICA():
     df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
 
-    params = {'n_components': 3, 'random_state':1}
+    params = {'n_components': 3, 'random_state': 1}
     df, dimred_obj = dim_red.dim_red(df, 'wvl', 'FastICA', [], params)
-    expected_comps = [-2.190278e-05,  1.498101e-06,  9.082887e-07]
+    expected_comps = [-2.190278e-05, 1.498101e-06, 9.082887e-07]
     expected_scores = [0.03252833, -0.03749623, -0.11434307]
 
     assert df['FastICA (wvl)'].shape == (103, 3)
     np.testing.assert_array_almost_equal(np.sort(expected_comps), np.sort(dimred_obj.components_[:, 0]), decimal=5)
-    np.testing.assert_array_almost_equal(np.sort(expected_scores), np.sort(np.array(df['FastICA (wvl)'].iloc[0, :])), decimal=5)
+    np.testing.assert_array_almost_equal(np.sort(expected_scores), np.sort(np.array(df['FastICA (wvl)'].iloc[0, :])),
+                                         decimal=5)
+
 
 def test_dimred_PCA():
     df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
@@ -144,65 +154,70 @@ def test_dimred_PCA():
     df, dimred_obj = dim_red.dim_red(df, 'wvl', 'PCA', [], params)
     expected_expl_var = [0.96051211, 0.01683739, 0.01471955]
     expected_scores = [10092.96265442, -628.16699776, -359.06894452]
-    assert df['PCA (wvl)'].shape == (103,3)
+    assert df['PCA (wvl)'].shape == (103, 3)
     np.testing.assert_array_almost_equal(expected_expl_var, dimred_obj.explained_variance_ratio_)
-    np.testing.assert_array_almost_equal(expected_scores,np.array(df['PCA (wvl)'].iloc[0,:]))
+    np.testing.assert_array_almost_equal(expected_scores, np.array(df['PCA (wvl)'].iloc[0, :]))
+
 
 def test_dimred_NNMF():
     df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
-    df['wvl'] = df['wvl'] - 1000 #make some values negative to test adding a constant
+    df['wvl'] = df['wvl'] - 1000  # make some values negative to test adding a constant
     dim_red.check_positive(df['wvl'])
     params = {'n_components': 3,
-        'random_state': 0,
-        'add_constant': True}
+              'random_state': 0,
+              'add_constant': True}
     df, dimred_obj = dim_red.dim_red(df, 'wvl', 'NNMF', [], params)
     expected_comps = [10.27191532, 34.62489686, 3.06822373]
     expected_scores = [49.42458628, 3.9910722, 27.03100371]
-    assert df['NNMF (wvl)'].shape == (103,3)
-    np.testing.assert_array_almost_equal(expected_comps, dimred_obj.components_[:,0])
-    np.testing.assert_array_almost_equal(expected_scores,np.array(df['NNMF (wvl)'].iloc[0,:]))
+    assert df['NNMF (wvl)'].shape == (103, 3)
+    np.testing.assert_array_almost_equal(expected_comps, dimred_obj.components_[:, 0])
+    np.testing.assert_array_almost_equal(expected_scores, np.array(df['NNMF (wvl)'].iloc[0, :]))
 
-def test_dimred_NMF_withRealWorldData():
+
+def test_dimred_NNMF_withRealWorldData():
     '''Tests the LDA function using real world labeled LIBS data.'''
-    
-    #Open the test dataset, which contains LIBS library spectra
+
+    # Open the test dataset, which contains LIBS library spectra
     df = pd.read_csv(get_path('labeled_LIBS_testfile.csv'), header=[0, 1])
-    
-    #NMF requires all positive values, let's set the floor to 0
-    df['wvl'] = np.where(df['wvl'].values<0, 0, df['wvl'].values)
-    
-    #Set up the parameters for the NMF algorithm
-    #The number of components and iterations are increased because NMF 
-    #doesn't tend to converge nicely with this dataset. Might need
-    #more andesite samples to get it behave or extend the number of 
-    #wavelengths that are fed to it.
-    #NMF won't run in PyHAT without the add_constant param defined
+
+    # NMF requires all positive values, let's set the floor to 0
+    df['wvl'] = np.where(df['wvl'].values < 0, 0, df['wvl'].values)
+
+    # Set up the parameters for the NMF algorithm
+    # The number of components and iterations are increased because NMF
+    # doesn't tend to converge nicely with this dataset. Might need
+    # more andesite samples to get it behave or extend the number of
+    # wavelengths that are fed to it.
+    # NMF won't run in PyHAT without the add_constant param defined
     params = {}
-    kws    = {'add_constant':False, 'n_components':2, 'max_iter':20000}
-    
-    #Run NMF
-    df, dimred_obj = dim_red.dim_red(df, 'wvl', 'NMF', params=params, kws=kws, ycol='Geologic name')
-    
-    #Find the indicies that correspond to the spectra and NMF results
-    #for the two labeled rock types
-    ind_bas = np.where(df['Geologic name'].values=='Basalt')[0]
-    ind_and = np.where(df['Geologic name'].values=='Andesite')[0]
-    
-    #Simple test is to check the centers of the clusters. They should
-    #be distinct enough, and this was verified visually in writing the test.
-    and_center = np.mean(np.array([df['NMF (wvl)']['NMF-1'].values[ind_and], df['NMF (wvl)']['NMF-2'].values[ind_and]]), axis=1)
-    bas_center = np.mean(np.array([df['NMF (wvl)']['NMF-1'].values[ind_bas], df['NMF (wvl)']['NMF-2'].values[ind_bas]]), axis=1)
+    kws = {'add_constant': False, 'n_components': 2, 'max_iter': 20000}
+
+    # Run NMF
+    df, dimred_obj = dim_red.dim_red(df, 'wvl', 'NNMF', params=params, kws=kws, ycol='Geologic name')
+
+    # Find the indicies that correspond to the spectra and NMF results
+    # for the two labeled rock types
+    ind_bas = np.where(df['Geologic name'].values == 'Basalt')[0]
+    ind_and = np.where(df['Geologic name'].values == 'Andesite')[0]
+
+    # Simple test is to check the centers of the clusters. They should
+    # be distinct enough, and this was verified visually in writing the test.
+    and_center = np.mean(np.array([df['NNMF (wvl)']['NNMF-1'].values[ind_and], df['NNMF (wvl)']['NNMF-2'].values[ind_and]]),
+                         axis=1)
+    bas_center = np.mean(np.array([df['NNMF (wvl)']['NNMF-1'].values[ind_bas], df['NNMF (wvl)']['NNMF-2'].values[ind_bas]]),
+                         axis=1)
     np.testing.assert_almost_equal(np.abs(bas_center - and_center), [1316662.64123436, 1196221.16644762])
-    
-    #Also, let's make sure to do a simple check to make sure
-    #the clusters are well seperated (by 2 standard deviations of their
-    #average standard deviation along the two components).
-    stds = np.mean(np.std(df['NMF (wvl)'].values[ind_bas], axis=0)) + np.mean(np.std(df['NMF (wvl)'].values[ind_and], axis=0))
+
+    # Also, let's make sure to do a simple check to make sure
+    # the clusters are well seperated (by 2 standard deviations of their
+    # average standard deviation along the two components).
+    stds = np.mean(np.std(df['NNMF (wvl)'].values[ind_bas], axis=0)) + np.mean(
+        np.std(df['NNMF (wvl)'].values[ind_and], axis=0))
     dist = np.linalg.norm(np.vstack([and_center, bas_center]))
-    np.testing.assert_array_less(np.array([2*stds]), np.array([dist]))
+    np.testing.assert_array_less(np.array([2 * stds]), np.array([dist]))
+
 
 def test_dimred_LDA():
-    
     df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
 
     kws = {'n_clusters': 5,
@@ -250,20 +265,20 @@ def test_dimred_LDA_withRealWorldData():
     #the clusters are well seperated (by 2 standard deviations).
     stds = np.std(df['LDA']['LDA-1'].values[ind_bas]) + np.std(df['LDA']['LDA-1'].values[ind_and])
     np.testing.assert_array_less(np.array([2*stds]), np.array([dist]))
-    
+
 def test_dimred_LFDA():
-    #df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
+    # df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
     df = pd.read_csv(get_path('iris.csv'))
     params = {'r': 3, 'metric': 'plain', 'knn': 5}
     cols = list(df.columns[1:5])
-    df, dimred_obj = dim_red.dim_red(df, cols, 'LFDA', [], params, ycol = 'Species')
+    df, dimred_obj = dim_red.dim_red(df, cols, 'LFDA', [], params, ycol='Species')
 
-    expected_Z =[[1.17658471,-5.73187812,-0.70134324], [1.26725406,-5.23944184,-0.84506262]]
+    expected_Z = [[1.17658471, -5.73187812, -0.70134324], [1.26725406, -5.23944184, -0.84506262]]
     expected_Tr = [[0.15532635, -0.67208433, -0.47664679], [-0.24346924, -0.71603884, 0.47809747]]
     expected_values = [-0.70134324, -0.84506262, -0.64763099, -0.66074162, -0.60586882]
-    np.testing.assert_array_almost_equal(expected_Z,dimred_obj.Z[0:2,:])
+    np.testing.assert_array_almost_equal(expected_Z, dimred_obj.Z[0:2, :])
     np.testing.assert_array_almost_equal(expected_Tr, dimred_obj.Tr[0:2, :])
-    np.testing.assert_array_almost_equal(expected_values, df.iloc[0:5,-1])
+    np.testing.assert_array_almost_equal(expected_values, df.iloc[0:5, -1])
 
     df = pd.read_csv(get_path('iris.csv'))
     params = {'r': 3, 'metric': 'weighted', 'knn': 5}
@@ -282,32 +297,33 @@ def test_dimred_LFDA():
     cols = list(df.columns[1:5])
     df, dimred_obj = dim_red.dim_red(df, cols, 'LFDA', [], params, ycol='Species')
 
-    expected_Z = [[-1.17658471, -6.20333752, 0.5894996 ], [-1.26725406, -5.71840297, 0.76816463]]
+    expected_Z = [[-1.17658471, -6.20333752, 0.5894996], [-1.26725406, -5.71840297, 0.76816463]]
     expected_Tr = [[-0.15532635, -0.73171269, 0.46949654], [0.24346924, -0.67718402, -0.54512867]]
     expected_values = [0.5894996, 0.76816463, 0.54826003, 0.58978237, 0.48803708]
     np.testing.assert_array_almost_equal(expected_Z, dimred_obj.Z[0:2, :])
     np.testing.assert_array_almost_equal(expected_Tr, dimred_obj.Tr[0:2, :])
     np.testing.assert_array_almost_equal(expected_values, df.iloc[0:5, -1])
 
+
 def test_dimred_MNF():
     df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
-    params = {'n_components':4}
-    df, dimred_obj = dim_red.dim_red(df, 'wvl','MNF', [], params)
-    score_result = np.sort(np.array(df['MNF (wvl)'].iloc[0,:]))
+    params = {'n_components': 4}
+    df, dimred_obj = dim_red.dim_red(df, 'wvl', 'MNF', [], params)
+    score_result = np.sort(np.array(df['MNF (wvl)'].iloc[0, :]))
     expected_scores = [-36.6691721, -5.29645881, -3.63660052, 598.27972428]
     np.testing.assert_array_almost_equal(expected_scores, score_result)
 
     mnf = MNF()
     x = np.array(df['wvl'])
     try:
-        comps = mnf.fit_transform('foo') #test the case where the wrong type of data is passed
+        comps = mnf.fit_transform('foo')  # test the case where the wrong type of data is passed
 
     except:
         try:
             comps = mnf.fit_transform(x.T)  # test the case where # of wvls is > # of samples
         except:
 
-            comps = mnf.fit_transform(x) #test the case where a numpy array is passed
-            score_result = np.sort(np.sort(comps[0,:]))
+            comps = mnf.fit_transform(x)  # test the case where a numpy array is passed
+            score_result = np.sort(np.sort(comps[0, :]))
             expected_scores = [-36.6691721, -5.29645881, -3.63660052, 598.27972428]
             np.testing.assert_array_almost_equal(expected_scores, score_result)
