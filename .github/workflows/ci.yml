@@ -31,7 +31,7 @@ jobs:
         with:
           fetch-depth: '2'
       - name: Setup conda env
-        uses: conda-incubator/setup-miniconda@v2
+        uses: conda-incubator/setup-miniconda@v2.1.1
         with: 
           miniconda-version: "latest"
           mamba-version: "*"
@@ -40,6 +40,9 @@ jobs:
           channel-priority: strict
           activate-environment: test_env
           environment-file: environment.yml
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
           python-version: ${{ matrix.python-version }}
       - name: Install Python Package
         run: |
