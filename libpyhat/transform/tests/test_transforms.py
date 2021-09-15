@@ -14,7 +14,6 @@ from libpyhat.transform.dim_reductions.mnf import MNF
 
 np.random.seed(1)
 
-
 def test_shift_spect():
     df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
     result = shift_spect.shift_spect(df, -1.0)
@@ -237,37 +236,35 @@ def test_dimred_LDA():
     np.testing.assert_array_almost_equal(expected_coefs, np.sort(np.abs(dimred_obj.coef_[:, 0])))
     np.testing.assert_array_almost_equal(expected_scores, np.sort(np.abs(np.array(df['LDA (wvl)'].iloc[0, :]))))
 
-
 def test_dimred_LDA_withRealWorldData():
     '''Tests the LDA function using real world labeled LIBS data.'''
-
-    # Open the test dataset, which contains LIBS library spectra
+    
+    #Open the test dataset, which contains LIBS library spectra
     df = pd.read_csv(get_path('labeled_LIBS_testfile.csv'), header=[0, 1])
-
-    # Set up the parameters for the LDA algorithm
-    # There are only two labels/categories 'Andesite' and 'Basalt'
-    # So there can only be a single component
+    
+    #Set up the parameters for the LDA algorithm
+    #There are only two labels/categories 'Andesite' and 'Basalt'
+    #So there can only be a single component
     params = {}
-    kws = {'n_components': 1}
-
-    # If the basalt and andesite spectra are distinct from one another
-    # LDA should should present us with distinct clusters
+    kws    = {'n_components': 1}
+    
+    #If the basalt and andesite spectra are distinct from one another
+    #LDA should should present us with distinct clusters
     df, dimred_obj = dim_red.dim_red(df, 'wvl', 'LDA', params=params, kws=kws, ycol='Geologic name')
-
-    # Find the indicies that correspond to the spectra and LDA results
-    # for the two labeled rock types
-    ind_bas = np.where(df['Geologic name'].values == 'Basalt')[0]
-    ind_and = np.where(df['Geologic name'].values == 'Andesite')[0]
-
-    # Simple test is to check the distance of the center of the clusters.
+    
+    #Find the indicies that correspond to the spectra and LDA results
+    #for the two labeled rock types
+    ind_bas = np.where(df['Geologic name'].values=='Basalt')[0]
+    ind_and = np.where(df['Geologic name'].values=='Andesite')[0]
+    
+    #Simple test is to check the distance of the center of the clusters.
     dist = np.median(df['LDA']['LDA-1'].values[ind_bas]) - np.median(df['LDA']['LDA-1'].values[ind_and])
     np.testing.assert_almost_equal(np.abs(dist), 5.367776196776056)
-
-    # Also, let's make sure to do a simple check to make sure
-    # the clusters are well seperated (by 2 standard deviations).
+    
+    #Also, let's make sure to do a simple check to make sure
+    #the clusters are well seperated (by 2 standard deviations).
     stds = np.std(df['LDA']['LDA-1'].values[ind_bas]) + np.std(df['LDA']['LDA-1'].values[ind_and])
-    np.testing.assert_array_less(np.array([2 * stds]), np.array([dist]))
-
+    np.testing.assert_array_less(np.array([2*stds]), np.array([dist]))
 
 def test_dimred_LFDA():
     # df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
