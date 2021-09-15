@@ -26,9 +26,12 @@ jobs:
         uses: EthanSK/git-branch-name-action@v1
       - name: Echo the branch name
         run: echo "Branch name ${GIT_BRANCH_NAME}"
-      - uses: actions/checkout@v2     
+      - name: Check out code
+        uses: actions/checkout@v2     
+        with:
+          fetch-depth: '2'
       - name: Setup conda env
-        uses: conda-incubator/setup-miniconda@v2
+        uses: conda-incubator/setup-miniconda@v2.1.1
         with: 
           miniconda-version: "latest"
           mamba-version: "*"
@@ -37,8 +40,10 @@ jobs:
           channel-priority: strict
           activate-environment: test_env
           environment-file: environment.yml
+      - name: Setup python
+        uses: actions/setup-python@v2
+        with:
           python-version: ${{ matrix.python-version }}
-          fetch-depth: '2'
       - name: Install Python Package
         run: |
           conda install pip setuptools
@@ -58,6 +63,7 @@ jobs:
           verbose: false
       - name: Deploy
         if: ${{ env.GIT_BRANCH_NAME == 'master' }}
+
         run: |
           echo "We are on the master branch - deploying!"
           conda deactivate
@@ -69,5 +75,3 @@ jobs:
           echo conda build --python ${{ matrix.python-version }} recipe
           conda build --token ${{ secrets.CONDA_UPLOAD_TOKEN }} --python ${{ matrix.python-version }} recipe
               
-
-      
