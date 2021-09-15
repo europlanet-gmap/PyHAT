@@ -36,7 +36,7 @@ def remove_duplicates(rmseps, predicts):
 
     return rmseps, predicts
 
-def dynamic_rmse(test_predicts,test_actuals,windowsize = [0.0], min_rmsep_num = [40], plot_file=None, element='',
+def dynamic_rmse(test_predicts,test_actuals,windowsize = [0.0], min_rmsep_num = [40], outpath = '', plot_file=None, element='',
                  sigma = None, extrapolate = True, full_fit = False, xmax = 120):
     test_predicts = np.array(test_predicts)
     test_actuals = np.array(test_actuals)
@@ -158,7 +158,7 @@ def dynamic_rmse(test_predicts,test_actuals,windowsize = [0.0], min_rmsep_num = 
                         outdata = pd.DataFrame()
                         outdata['sigma ='+str(s)+'; window ='+str(win)+'; #='+str(minval)] = dummy_rmseps_extrap
                         outdata['prediction'] = dummypredicts_extrap
-                        outdata.to_csv("local_rmsep_sigma"+str(s)+'_win'+str(win)+'_n'+str(minval)+'.csv')
+                        outdata.to_csv(outpath+'//'+"local_rmsep_sigma"+str(s)+'_win'+str(win)+'_n'+str(minval)+'.csv')
 
                #optionally plot the results
             if plot_file is not None:
@@ -167,7 +167,7 @@ def dynamic_rmse(test_predicts,test_actuals,windowsize = [0.0], min_rmsep_num = 
                     outdata = pd.DataFrame()
                     outdata['prediction'] = dummypredicts
                     outdata['window ='+str(win)+'; #='+str(minval)] = dummy_rmseps
-                    outdata.to_csv("local_rmsep_win" + str(win) + '_n' + str(minval) + '.csv')
+                    outdata.to_csv(outpath+'//'+"local_rmsep_win" + str(win) + '_n' + str(minval) + '.csv')
 
                 # # Look up the expected RMSEP for the actual predictions
             #    for j=0,n_elements(predicts[i,*])-1 do begin
@@ -187,6 +187,6 @@ def dynamic_rmse(test_predicts,test_actuals,windowsize = [0.0], min_rmsep_num = 
     fig.supylabel('Local RMSEP')
     plot.suptitle(element)
     plot.tight_layout()
-    plot.savefig(plot_file,dpi=1000)
+    plot.savefig(outpath+'/'+plot_file,dpi=1000)
     plot.close()
 
