@@ -236,6 +236,7 @@ def test_dimred_LDA():
     np.testing.assert_array_almost_equal(expected_coefs, np.sort(np.abs(dimred_obj.coef_[:, 0])))
     np.testing.assert_array_almost_equal(expected_scores, np.sort(np.abs(np.array(df['LDA (wvl)'].iloc[0, :]))))
 
+
 def test_dimred_LDA_withRealWorldData():
     '''Tests the LDA function using real world labeled LIBS data.'''
     
@@ -265,6 +266,7 @@ def test_dimred_LDA_withRealWorldData():
     #the clusters are well seperated (by 2 standard deviations).
     stds = np.std(df['LDA']['LDA-1'].values[ind_bas]) + np.std(df['LDA']['LDA-1'].values[ind_and])
     np.testing.assert_array_less(np.array([2*stds]), np.array([dist]))
+
 
 def test_dimred_LFDA():
     # df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
@@ -327,6 +329,7 @@ def test_dimred_MNF():
             score_result = np.sort(np.sort(comps[0, :]))
             expected_scores = [-36.6691721, -5.29645881, -3.63660052, 598.27972428]
             np.testing.assert_array_almost_equal(expected_scores, score_result)
+
 
 def test_dimred_MNF_withRealWorldData():
     '''Tests the MNF function using real world labeled LIBS data.'''
