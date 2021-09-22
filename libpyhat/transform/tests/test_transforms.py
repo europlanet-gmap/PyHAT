@@ -382,7 +382,7 @@ def test_dimred_LFDA_usingLIBS():
     #the basalt and andesite labels. We just assume a single cluster in 
     #the local space (knn)
     params = {}
-    kws    = {'r':1', 'metric':'plain', 'knn':1}
+    kws    = {'r':1, 'metric':'plain', 'knn':1}
     
     #Perform LFDA
     df, dimred_obj = dim_red.dim_red(df, 'wvl', 'LFDA', {}, {'r':1,'metric':'plain','knn':1}, ycol='Geologic name')
