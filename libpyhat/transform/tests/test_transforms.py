@@ -367,8 +367,41 @@ def test_dimred_MNF_usingLIBS():
     
     #Let's also make sure the noise channel has poor correlation
     r = pearsonr(dfa['wvl'].values.T[:,0], x2)
-    np.testing.assert_array_almost equal(np.array(r), [0.05240176, 0.24263178])
+    np.testing.assert_array_almost_equal(np.array(r), [0.05240176, 0.24263178])
 
 
 def test_dimred_LFDA_usingLIBS():
+    '''Tests the MNF function using real world labeled LIBS data and
+    with physically/chemically intuitive tests.'''
+        
+    #Open the test dataset, which contains LIBS library spectra
+    df = pd.read_csv(get_path('labeled_LIBS_testfile.csv'), header=[0, 1])
     
+    #Set up parameters and arguments for LFDA. For a super simple test,
+    #we can use a single dimension to verify that LFDA can seperate between
+    #the basalt and andesite labels. We just assume a single cluster in 
+    #the local space (knn)
+    params = {}
+    kws    = {'r':1', 'metric':'plain', 'knn':1}
+    
+    #Perform LFDA
+    df, dimred_obj = dim_red.dim_red(df, 'wvl', 'LFDA', {}, {'r':1,'metric':'plain','knn':1}, ycol='Geologic name')
+    
+    #Grab the indicies of the two labels
+    ind_bas = np.where(df['Geologic name'].values=='Basalt')[0]
+    ind_and = np.where(df['Geologic name'].values=='Andesite')[0]
+    
+    #Compute the mean and standard deviation of the two sample types
+    c1_bas = df['LFDA (wvl)']['LFDA-1'].values[ind_bas]
+    c1_and = df['LFDA (wvl)']['LFDA-1'].values[ind_and]
+    m1_bas = np.mean(c1_bas)
+    m1_and = np.mean(c1_and)
+    s1_bas_and = np.std(c1_bas)+np.std(c1_and)
+    
+    #Verify that there are two *very* seperable clusters in component 1
+    #by comparing their distance to 10000 times their combined standard deviations
+    np.testing.assert_array_greater(np.abs(m1_bas-m1_and), s1_bas_and*1000)    
+    
+    #Let's also include a direct value test of the means
+    np.testing.assert_array_almost_equal([m1_bas.real, m1_and.real], [207176884.18443012, -1434710064.2183135])
+
