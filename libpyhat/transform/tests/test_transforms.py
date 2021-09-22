@@ -327,3 +327,38 @@ def test_dimred_MNF():
             score_result = np.sort(np.sort(comps[0, :]))
             expected_scores = [-36.6691721, -5.29645881, -3.63660052, 598.27972428]
             np.testing.assert_array_almost_equal(expected_scores, score_result)
+
+def test_dimred_MNF_withRealWorldData():
+    '''Tests the MNF function using real world labeled LIBS data.'''
+    
+    #Open the test dataset, which contains LIBS library spectra
+    df = pd.read_csv(get_path('labeled_LIBS_testfile.csv'), header=[0, 1])
+    
+    #Set up parameters and arguments for MNF
+    params = {'n_components':2}
+    kws    = {}
+    
+    #Grab the andesite data
+    ind_and = np.where(df['Geologic name'].values=='Andesite')[0]
+    
+    #Run MNF on a single type of sample, so it can determine the
+    #channels for that spectra, which should be relatively consistent,
+    #experimental factors held constant (assumption).
+    df, dimred_obj = dim_red.dim_red(df.loc[ind_and], 'wvl', 'MNF',  params=params, kws=kws, ycol='wvl')
+    
+    #Using the MNF transform, let's ask it to give us the signal
+    #and noise channels for the first andesite spectrum
+    x1 = dimred_obj.fit_transform(df['wvl'].values.T)[:,0] #first component (signal)
+    x2 = dimred_obj.fit_transform(df['wvl'].values.T)[:,1] #second component (noise)
+    
+    #Now let's check that there's good correlation with the data
+    #and the signal channel, but poor correlation with the noise channel
+    from scipy.stats import pearsonr
+    r = pearsonr(dfa['wvl'].values.T[:,0], x1)
+    
+    #Let's make sure this is near 1
+    np.testing.assert_array_almost_equal(np.array(r), [0.99724445, 0.        ])
+    
+    #Let's also make sure the noise channel has poor correlation
+    r = pearsonr(dfa['wvl'].values.T[:,0], x2)
+    np.testing.assert_array_almost equal(np.array(r), [0.05240176, 0.24263178])
