@@ -400,7 +400,7 @@ def test_dimred_LFDA_usingLIBS():
     
     #Verify that there are two *very* seperable clusters in component 1
     #by comparing their distance to 10000 times their combined standard deviations
-    np.testing.assert_array_greater(np.abs(m1_bas-m1_and), s1_bas_and*1000)    
+    np.testing.assert_array_less(s1_bas_and*1000, np.abs(m1_bas-m1_and))
     
     #Let's also include a direct value test of the means
     np.testing.assert_array_almost_equal([m1_bas.real, m1_and.real], [207176884.18443012, -1434710064.2183135])
