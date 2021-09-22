@@ -174,8 +174,9 @@ def test_dimred_NNMF():
     np.testing.assert_array_almost_equal(expected_scores, np.array(df['NNMF (wvl)'].iloc[0, :]))
 
 
-def test_dimred_NNMF_withRealWorldData():
-    '''Tests the LDA function using real world labeled LIBS data.'''
+def test_dimred_NNMF_usingLIBS():
+    '''Tests the LDA function using real world labeled LIBS data and
+    physically/chemically intuitive tests.'''
 
     # Open the test dataset, which contains LIBS library spectra
     df = pd.read_csv(get_path('labeled_LIBS_testfile.csv'), header=[0, 1])
@@ -237,8 +238,9 @@ def test_dimred_LDA():
     np.testing.assert_array_almost_equal(expected_scores, np.sort(np.abs(np.array(df['LDA (wvl)'].iloc[0, :]))))
 
 
-def test_dimred_LDA_withRealWorldData():
-    '''Tests the LDA function using real world labeled LIBS data.'''
+def test_dimred_LDA_usingLIBS():
+    '''Tests the LDA function using real world labeled LIBS data and 
+    physically/chemically intuitive tests.'''
     
     #Open the test dataset, which contains LIBS library spectra
     df = pd.read_csv(get_path('labeled_LIBS_testfile.csv'), header=[0, 1])
@@ -331,8 +333,9 @@ def test_dimred_MNF():
             np.testing.assert_array_almost_equal(expected_scores, score_result)
 
 
-def test_dimred_MNF_withRealWorldData():
-    '''Tests the MNF function using real world labeled LIBS data.'''
+def test_dimred_MNF_usingLIBS():
+    '''Tests the MNF function using real world labeled LIBS data and
+    with physically/chemically intuitive tests.'''
     
     #Open the test dataset, which contains LIBS library spectra
     df = pd.read_csv(get_path('labeled_LIBS_testfile.csv'), header=[0, 1])
@@ -365,3 +368,7 @@ def test_dimred_MNF_withRealWorldData():
     #Let's also make sure the noise channel has poor correlation
     r = pearsonr(dfa['wvl'].values.T[:,0], x2)
     np.testing.assert_array_almost equal(np.array(r), [0.05240176, 0.24263178])
+
+
+def test_dimred_LFDA_usingLIBS():
+    
