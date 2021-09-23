@@ -65,9 +65,10 @@ def dim_red(df, xcol, method, params, kws, load_fit=None, ycol=None):
                 dim_red_result = do_dim_red.fit_transform(xdata)
             if method == 'MNF':
                 dim_red_result = do_dim_red.fit_transform(xdata)
-
+    #Need to revisit the loop below for methods that don't use n_components to make sure column
+    #names makes sense. Also, this produces a not-so-helpful error when user enters n_components that is too small
     for i in list(range(1, dim_red_result.shape[
-                               1] + 1)):  # will need to revisit this for other methods that don't use n_components to make sure column names still mamke sense
+                               1] + 1)):
         df[(method+' ('+str(xcol)+')', method+'-'+str(i))] = dim_red_result[:, i - 1]
 
     return df, do_dim_red

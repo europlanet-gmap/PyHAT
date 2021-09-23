@@ -45,7 +45,7 @@
 #'
 """
 import numpy as np
-
+import warnings
 #' Get Affinity Matrix
 #'
 #' This function returns an affinity matrix within knn-nearest neighbors from the distance matrix.
@@ -145,6 +145,9 @@ class LFDA():
             Tr = eigVec
 
         Z = np.dot(Tr.T, x).T
+        
+        if(np.any(np.iscomplex(Z))):
+            warnings.warn('The returned matricies are complex! The numpy.linalg.eig function within the lfda implementation is likely the culprit.')
 
         self.Tr = Tr
         self.Z = Z
