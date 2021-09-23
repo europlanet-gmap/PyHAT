@@ -341,8 +341,8 @@ def test_dimred_MNF_usingLIBS():
     df = pd.read_csv(get_path('labeled_LIBS_testfile.csv'), header=[0, 1])
     
     #Set up parameters and arguments for MNF
-    params = {'n_components':2}
-    kws    = {}
+    params = {}
+    kws    = {'n_components':2}
     
     #Grab the andesite data
     ind_and = np.where(df['Geologic name'].values=='Andesite')[0]
@@ -360,13 +360,13 @@ def test_dimred_MNF_usingLIBS():
     #Now let's check that there's good correlation with the data
     #and the signal channel, but poor correlation with the noise channel
     from scipy.stats import pearsonr
-    r = pearsonr(dfa['wvl'].values.T[:,0], x1)
+    r = pearsonr(df['wvl'].values.T[:,0], x1)
     
     #Let's make sure this is near 1
     np.testing.assert_array_almost_equal(np.array(r), [0.99724445, 0.        ])
     
     #Let's also make sure the noise channel has poor correlation
-    r = pearsonr(dfa['wvl'].values.T[:,0], x2)
+    r = pearsonr(df['wvl'].values.T[:,0], x2)
     np.testing.assert_array_almost_equal(np.array(r), [0.05240176, 0.24263178])
 
 
