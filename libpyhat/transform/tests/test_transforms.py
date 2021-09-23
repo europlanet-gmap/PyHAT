@@ -375,7 +375,7 @@ def test_dimred_LFDA_usingLIBS():
     with physically/chemically intuitive tests. 
     
     Note: Tried developing tests for array equivalence, but LFDA is rather 
-    inconcistent in how it chooses the location of the two clusters
+    inconsistent in how it chooses the location of the two clusters
     and their absolute locations. For now, the test is only for separability'''
     
     #Open the test dataset, which contains LIBS library spectra
@@ -409,13 +409,13 @@ def test_dimred_LFDA_usingLIBS():
 
 def test_dimred_LFDA_usingSalinas():
     '''Tests the MNF function using real world labeled Salinas data and
-    with physically/chemically intuitive tests. 
+    with intuitive tests. 
     
     Note: Tried developing tests for array equivalence, but LFDA is rather 
-    inconcistent in how it chooses the location of the two clusters
+    inconsistent in how it chooses the location of the two clusters
     and their absolute locations. For now, the test is only for separability'''
     
-    #Open the test dataset, which contains LIBS library spectra
+    #Open the test dataset, which contains labeled Salinas spectra
     df = pd.read_csv(get_path('labeled_Salinas_testfile.csv'), header=[0])
     
     #Let's find the indicies of two geologic types (2 and 6)
@@ -428,8 +428,8 @@ def test_dimred_LFDA_usingSalinas():
     
     #Set up parameters and arguments for LFDA. For a super simple test,
     #we can use a single dimension to verify that LFDA can seperate between
-    #the basalt and andesite labels. We just assume a single cluster in 
-    #the local space (knn)
+    #label 2 and 6, which are distinct geologic types. 
+    #We just assume a single cluster in the local space (knn)
     params = {}
     kws    = {'r':1, 'metric':'plain', 'knn':1}
     
