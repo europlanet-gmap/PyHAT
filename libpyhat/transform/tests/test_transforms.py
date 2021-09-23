@@ -404,6 +404,9 @@ def test_dimred_LFDA_usingLIBS():
     
     #Let's do a direct test of the returned values. Fair warning, these numbers
     #were generated in remote testing. Local numbers didn't match for some reason.
+    #Remote tests still failing...says arrays aren't equal. That's seemingly impossible...
+    print(m1_bas.real, m1_and.real)
+    print('%0.10f %0.10f'%(m1_bas.real, m1_and.real)
     np.testing.assert_array_almost_equal([m1_bas.real, m1_and.real], [-3.617231e+08,  1.117353e+09]) 
     #Local expected results: [207176884.18443012, -1434710064.2183135])
 
