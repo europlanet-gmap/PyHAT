@@ -385,7 +385,7 @@ def test_dimred_LFDA_usingLIBS():
     kws    = {'r':1, 'metric':'plain', 'knn':1}
     
     #Perform LFDA
-    df, dimred_obj = dim_red.dim_red(df, 'wvl', 'LFDA', {}, {'r':1,'metric':'plain','knn':1}, ycol='Geologic name')
+    df, dimred_obj = dim_red.dim_red(df, 'wvl', 'LFDA', params=params, kws=kws, ycol='Geologic name')
     
     #Grab the indicies of the two labels
     ind_bas = np.where(df['Geologic name'].values=='Basalt')[0]
