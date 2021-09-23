@@ -372,8 +372,12 @@ def test_dimred_MNF_usingLIBS():
 
 def test_dimred_LFDA_usingLIBS():
     '''Tests the MNF function using real world labeled LIBS data and
-    with physically/chemically intuitive tests.'''
-        
+    with physically/chemically intuitive tests. 
+    
+    Note: Tried developing tests for array equivalence, but LFDA is rather 
+    inconcistent in how it chooses the location of the two clusters
+    and their absolute locations. For now, the test is only for separability'''
+    
     #Open the test dataset, which contains LIBS library spectra
     df = pd.read_csv(get_path('labeled_LIBS_testfile.csv'), header=[0, 1])
     
@@ -401,13 +405,3 @@ def test_dimred_LFDA_usingLIBS():
     #Verify that there are two *very* seperable clusters in component 1
     #by comparing their distance to 10000 times their combined standard deviations
     np.testing.assert_array_less(s1_bas_and*1000, np.abs(m1_bas-m1_and))
-    
-    #Let's do a direct test of the returned values. Fair warning, these numbers
-    #were generated in remote testing. Local numbers didn't match for some reason.
-    #Remote tests still failing...says arrays aren't equal. That's seemingly impossible...
-    print(m1_bas.real, m1_and.real)
-    print('%0.10f %0.10f'%(m1_bas.real, m1_and.real))
-    
-    np.testing.assert_array_almost_equal([m1_bas.real, m1_and.real], [-3942084904.9921479225, -5489152171.8474426270])
-    #Local expected results: [207176884.18443012, -1434710064.2183135])
-
