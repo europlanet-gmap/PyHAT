@@ -350,7 +350,7 @@ def test_dimred_MNF_usingLIBS():
     #Run MNF on a single type of sample, so it can determine the
     #channels for that spectra, which should be relatively consistent,
     #experimental factors held constant (assumption).
-    df, dimred_obj = dim_red.dim_red(df.loc[ind_and], 'wvl', 'MNF',  params=params, kws=kws, ycol='wvl')
+    df, dimred_obj = dim_red.dim_red(df.loc[ind_and], 'wvl', 'MNF',  params=params, kws=kws)
     
     #Using the MNF transform, let's ask it to give us the signal
     #and noise channels for the first andesite spectrum
