@@ -405,3 +405,48 @@ def test_dimred_LFDA_usingLIBS():
     #Verify that there are two *very* seperable clusters in component 1
     #by comparing their distance to 10000 times their combined standard deviations
     np.testing.assert_array_less(s1_bas_and*1000, np.abs(m1_bas-m1_and))
+
+
+def test_dimred_LFDA_usingSalinas():
+    '''Tests the MNF function using real world labeled Salinas data and
+    with physically/chemically intuitive tests. 
+    
+    Note: Tried developing tests for array equivalence, but LFDA is rather 
+    inconcistent in how it chooses the location of the two clusters
+    and their absolute locations. For now, the test is only for separability'''
+    
+    #Open the test dataset, which contains LIBS library spectra
+    df = pd.read_csv(get_path('labeled_Salinas_testfile.csv'), header=[0])
+    
+    #Let's find the indicies of two geologic types (2 and 6)
+    ind_2 = np.where(df['gt'].values==2)[0]
+    ind_6 = np.where(df['gt'].values==6)[0]
+    ind_2_6 = np.concatenate([ind_2, ind_6])
+    
+    #Let's only use the rows with types 2 and 6
+    df = df.loc[ind_2_6]
+    
+    #Set up parameters and arguments for LFDA. For a super simple test,
+    #we can use a single dimension to verify that LFDA can seperate between
+    #the basalt and andesite labels. We just assume a single cluster in 
+    #the local space (knn)
+    params = {}
+    kws    = {'r':1, 'metric':'plain', 'knn':1}
+    
+    #Perform LFDA
+    cols = list(df.columns[4:-1])
+    df, dimred_obj = dim_red.dim_red(df, cols, 'LFDA', params=params, kws=kws, ycol='gt')
+    
+    #Compute the mean and standard deviation of the two sample types
+    #First, find their indicies in the new dataframe
+    ind_2 = np.where(df['gt'].values==2)[0]
+    ind_6 = np.where(df['gt'].values==6)[0]
+    c1_2 = df.iloc[:,-1].values[ind_2]
+    c1_6 = df.iloc[:,-1].values[ind_6]
+    m1_2 = np.mean(c1_2)
+    m1_6 = np.mean(c1_6)
+    s1_2_6 = np.std(c1_2)+np.std(c1_6)
+    
+    #Verify that there are two *very* seperable clusters in component 1
+    #by comparing their distance to 10000 times their combined standard deviations
+    np.testing.assert_array_less(s1_2_6*1000, np.abs(m1_2 - m1_6))
