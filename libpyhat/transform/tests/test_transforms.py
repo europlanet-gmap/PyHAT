@@ -371,7 +371,7 @@ def test_dimred_MNF_usingLIBS():
 
 
 def test_dimred_LFDA_usingLIBS():
-    '''Tests the MNF function using real world labeled LIBS data and
+    '''Tests the LFDA function using real world labeled LIBS data and
     with physically/chemically intuitive tests. 
     
     Note: Tried developing tests for array equivalence, but LFDA is rather 
@@ -408,7 +408,7 @@ def test_dimred_LFDA_usingLIBS():
 
 
 def test_dimred_LFDA_usingSalinas():
-    '''Tests the MNF function using real world labeled Salinas data and
+    '''Tests the LFDA function using real world labeled Salinas data and
     with intuitive tests. 
     
     Note: Tried developing tests for array equivalence, but LFDA is rather 
