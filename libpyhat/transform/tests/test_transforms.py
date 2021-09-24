@@ -400,7 +400,7 @@ def test_dimred_MNF_usingSalinas():
     np.testing.assert_array_almost_equal(np.array(r), [0.99724445, 0.        ])
     
     #Let's also make sure the noise channel has poor correlation
-    r = pearsonr(df['wvl'].values.T[:,0], x2)
+    r = pearsonr(df[cols].values.T[:,0], x2)
     np.testing.assert_array_almost_equal(np.array(r), [0.05240176, 0.24263178])
 
 
