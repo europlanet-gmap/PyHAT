@@ -261,12 +261,47 @@ def test_dimred_LDA_usingLIBS():
     ind_and = np.where(df['Geologic name'].values=='Andesite')[0]
     
     #Simple test is to check the distance of the center of the clusters.
-    dist = np.median(df['LDA']['LDA-1'].values[ind_bas]) - np.median(df['LDA']['LDA-1'].values[ind_and])
-    np.testing.assert_almost_equal(np.abs(dist), 5.367776196776056)
+    dist = np.abs(np.median(df['LDA']['LDA-1'].values[ind_bas]) - np.median(df['LDA']['LDA-1'].values[ind_and]))
+    np.testing.assert_almost_equal(dist, 5.367776196776056)
     
     #Also, let's make sure to do a simple check to make sure
     #the clusters are well seperated (by 2 standard deviations).
     stds = np.std(df['LDA']['LDA-1'].values[ind_bas]) + np.std(df['LDA']['LDA-1'].values[ind_and])
+    np.testing.assert_array_less(np.array([2*stds]), np.array([dist]))
+
+
+def test_dimred_LDA_usingSalinas():
+    '''Tests the LDA function using real world labeled Salinas data and
+    intuitive tests.'''
+    
+    #Open the test dataset, which contains Salinas library spectra
+    df = pd.read_csv(get_path('labeled_Salinas_testfile.csv'), header=[0])
+    
+    #Set up the parameters for the LDA algorithm
+    #There are only two labels/categories (geologic type '2' and '3')
+    #So there can only be a single component
+    params = {}
+    kws    = {'n_components': 1}
+    
+    #Grab the columns that contain spectral data
+    cols = list(df.columns[4:-1])
+    
+    #If the type 2 and 3 spectra are distinct from one another
+    #LDA should should present us with distinct clusters
+    df, dimred_obj = dim_red.dim_red(df, cols, 'LDA', params=params, kws=kws, ycol='gt')
+    
+    #Find the indicies that correspond to the spectra and LDA results
+    #for the two labeled geologic types
+    ind_2 = np.where(df['gt'].values==2)[0]
+    ind_6 = np.where(df['gt'].values==6)[0]
+    
+    #Simple test is to check the distance of the center of the clusters.
+    dist = np.abs(np.median(df.iloc[:,-1].values[ind_2]) - np.median(df.iloc[:,-1].values[ind_6]))
+    np.testing.assert_almost_equal(dist, 4.293384107071617)
+    
+    #Also, let's make sure to do a simple check to make sure
+    #the clusters are well seperated (by 2 standard deviations).
+    stds = np.std(df.iloc[:,-1].values[ind_2]) + np.std(df.iloc[:,-1].values[ind_6])
     np.testing.assert_array_less(np.array([2*stds]), np.array([dist]))
 
 
