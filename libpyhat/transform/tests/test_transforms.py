@@ -270,45 +270,6 @@ def test_dimred_LDA_usingLIBS():
     np.testing.assert_array_less(np.array([2*stds]), np.array([dist]))
 
 
-def test_dimred_LFDA():
-    # df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
-    df = pd.read_csv(get_path('iris.csv'))
-    params = {'r': 3, 'metric': 'plain', 'knn': 5}
-    cols = list(df.columns[1:5])
-    df, dimred_obj = dim_red.dim_red(df, cols, 'LFDA', [], params, ycol='Species')
-
-    expected_Z = [[1.17658471, -5.73187812, -0.70134324], [1.26725406, -5.23944184, -0.84506262]]
-    expected_Tr = [[0.15532635, -0.67208433, -0.47664679], [-0.24346924, -0.71603884, 0.47809747]]
-    expected_values = [-0.70134324, -0.84506262, -0.64763099, -0.66074162, -0.60586882]
-    np.testing.assert_array_almost_equal(expected_Z, dimred_obj.Z[0:2, :])
-    np.testing.assert_array_almost_equal(expected_Tr, dimred_obj.Tr[0:2, :])
-    np.testing.assert_array_almost_equal(expected_values, df.iloc[0:5, -1])
-
-    df = pd.read_csv(get_path('iris.csv'))
-    params = {'r': 3, 'metric': 'weighted', 'knn': 5}
-    cols = list(df.columns[1:5])
-    df, dimred_obj = dim_red.dim_red(df, cols, 'LFDA', [], params, ycol='Species')
-
-    expected_Z = [[40.24100588, -39.75445661, -2.99501843], [43.34203702, -36.33907748, -3.60875811]]
-    expected_Tr = [[5.3124001, -4.66135999, -2.03547398], [-8.32702232, -4.96621426, 2.04166896]]
-    expected_values = [-2.99501843, -3.60875811, -2.76564543, -2.82163311, -2.58730414]
-    np.testing.assert_array_almost_equal(expected_Z, dimred_obj.Z[0:2, :])
-    np.testing.assert_array_almost_equal(expected_Tr, dimred_obj.Tr[0:2, :])
-    np.testing.assert_array_almost_equal(expected_values, df.iloc[0:5, -1])
-
-    df = pd.read_csv(get_path('iris.csv'))
-    params = {'r': 3, 'metric': 'orthonormalized', 'knn': 5}
-    cols = list(df.columns[1:5])
-    df, dimred_obj = dim_red.dim_red(df, cols, 'LFDA', [], params, ycol='Species')
-
-    expected_Z = [[-1.17658471, -6.20333752, 0.5894996], [-1.26725406, -5.71840297, 0.76816463]]
-    expected_Tr = [[-0.15532635, -0.73171269, 0.46949654], [0.24346924, -0.67718402, -0.54512867]]
-    expected_values = [0.5894996, 0.76816463, 0.54826003, 0.58978237, 0.48803708]
-    np.testing.assert_array_almost_equal(expected_Z, dimred_obj.Z[0:2, :])
-    np.testing.assert_array_almost_equal(expected_Tr, dimred_obj.Tr[0:2, :])
-    np.testing.assert_array_almost_equal(expected_values, df.iloc[0:5, -1])
-
-
 def test_dimred_MNF():
     df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
     params = {'n_components': 4}
@@ -384,31 +345,66 @@ def test_dimred_MNF_usingSalinas():
     #Grab the data for geologic type 2
     ind_2 = np.where(df['gt'].values==2)[0]
     
-    #grab the columns that contain spectral data
-    cols = list(df.columns[4:-1])
-    
     #Run MNF on a single type of sample, so it can determine the
     #channels for that spectra, which should be relatively consistent,
     #experimental factors held constant (assumption).
-    df, dimred_obj = dim_red.dim_red(df.loc[ind_2], cols, 'MNF',  params=params, kws=kws)
+    df, dimred_obj = dim_red.dim_red(df.loc[ind_2], 'wvl', 'MNF',  params=params, kws=kws)
     
     #Using the MNF transform, let's ask it to give us the signal
-    #and noise channels for the first spectrum with geologic type 2
+    #and noise channels for the first andesite spectrum
     x1 = dimred_obj.fit_transform(df[cols].values.T)[:,0] #first component (signal)
     x2 = dimred_obj.fit_transform(df[cols].values.T)[:,1] #second component (noise)
     
     #Now let's check that there's good correlation with the data
     #and the signal channel, but poor correlation with the noise channel
     from scipy.stats import pearsonr
-    r = pearsonr(df[cols].values.T[:,0], x1)
+    r = pearsonr(df['wvl'].values.T[:,0], x1)
     
     #Let's make sure this is near 1
-    np.testing.assert_array_almost_equal(np.array(r), [0.9995890033162632, 1.38544234117e-313])
+    np.testing.assert_array_almost_equal(np.array(r), [0.99724445, 0.        ])
     
     #Let's also make sure the noise channel has poor correlation
-    r = pearsonr(df[cols].values.T[:,0], x2)
-    np.testing.assert_array_almost_equal(np.array(r), [-0.028356585032974967, 0.6872386081577025])
+    r = pearsonr(df['wvl'].values.T[:,0], x2)
+    np.testing.assert_array_almost_equal(np.array(r), [0.05240176, 0.24263178])
 
+
+def test_dimred_LFDA():
+    # df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
+    df = pd.read_csv(get_path('iris.csv'))
+    params = {'r': 3, 'metric': 'plain', 'knn': 5}
+    cols = list(df.columns[1:5])
+    df, dimred_obj = dim_red.dim_red(df, cols, 'LFDA', [], params, ycol='Species')
+
+    expected_Z = [[1.17658471, -5.73187812, -0.70134324], [1.26725406, -5.23944184, -0.84506262]]
+    expected_Tr = [[0.15532635, -0.67208433, -0.47664679], [-0.24346924, -0.71603884, 0.47809747]]
+    expected_values = [-0.70134324, -0.84506262, -0.64763099, -0.66074162, -0.60586882]
+    np.testing.assert_array_almost_equal(expected_Z, dimred_obj.Z[0:2, :])
+    np.testing.assert_array_almost_equal(expected_Tr, dimred_obj.Tr[0:2, :])
+    np.testing.assert_array_almost_equal(expected_values, df.iloc[0:5, -1])
+
+    df = pd.read_csv(get_path('iris.csv'))
+    params = {'r': 3, 'metric': 'weighted', 'knn': 5}
+    cols = list(df.columns[1:5])
+    df, dimred_obj = dim_red.dim_red(df, cols, 'LFDA', [], params, ycol='Species')
+
+    expected_Z = [[40.24100588, -39.75445661, -2.99501843], [43.34203702, -36.33907748, -3.60875811]]
+    expected_Tr = [[5.3124001, -4.66135999, -2.03547398], [-8.32702232, -4.96621426, 2.04166896]]
+    expected_values = [-2.99501843, -3.60875811, -2.76564543, -2.82163311, -2.58730414]
+    np.testing.assert_array_almost_equal(expected_Z, dimred_obj.Z[0:2, :])
+    np.testing.assert_array_almost_equal(expected_Tr, dimred_obj.Tr[0:2, :])
+    np.testing.assert_array_almost_equal(expected_values, df.iloc[0:5, -1])
+
+    df = pd.read_csv(get_path('iris.csv'))
+    params = {'r': 3, 'metric': 'orthonormalized', 'knn': 5}
+    cols = list(df.columns[1:5])
+    df, dimred_obj = dim_red.dim_red(df, cols, 'LFDA', [], params, ycol='Species')
+
+    expected_Z = [[-1.17658471, -6.20333752, 0.5894996], [-1.26725406, -5.71840297, 0.76816463]]
+    expected_Tr = [[-0.15532635, -0.73171269, 0.46949654], [0.24346924, -0.67718402, -0.54512867]]
+    expected_values = [0.5894996, 0.76816463, 0.54826003, 0.58978237, 0.48803708]
+    np.testing.assert_array_almost_equal(expected_Z, dimred_obj.Z[0:2, :])
+    np.testing.assert_array_almost_equal(expected_Tr, dimred_obj.Tr[0:2, :])
+    np.testing.assert_array_almost_equal(expected_values, df.iloc[0:5, -1])
 
 
 def test_dimred_LFDA_usingLIBS():
