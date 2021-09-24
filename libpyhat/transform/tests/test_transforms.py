@@ -370,6 +370,47 @@ def test_dimred_MNF_usingLIBS():
     np.testing.assert_array_almost_equal(np.array(r), [0.05240176, 0.24263178])
 
 
+def test_dimred_MNF_usingSalinas():
+    '''Tests the MNF function using real world labeled Salinas
+     data and intuitive tests.'''
+    
+    #Open the test dataset, which contains labeled Salinas spectra
+    df = pd.read_csv(get_path('labeled_Salinas_testfile.csv'), header=[0])
+    
+    #Set up parameters and arguments for MNF
+    params = {}
+    kws    = {'n_components':2}
+    
+    #Grab the data for geologic type 2
+    ind_2 = np.where(df['gt'].values==2)[0]
+    
+    #grab the columns that contain spectral data
+    cols = list(df.columns[4:-1])
+    
+    #Run MNF on a single type of sample, so it can determine the
+    #channels for that spectra, which should be relatively consistent,
+    #experimental factors held constant (assumption).
+    df, dimred_obj = dim_red.dim_red(df.loc[ind_2], 'wvl', 'MNF',  params=params, kws=kws)
+    
+    #Using the MNF transform, let's ask it to give us the signal
+    #and noise channels for the first spectrum with geologic type 2
+    x1 = dimred_obj.fit_transform(df[cols].values.T)[:,0] #first component (signal)
+    x2 = dimred_obj.fit_transform(df[cols].values.T)[:,1] #second component (noise)
+    
+    #Now let's check that there's good correlation with the data
+    #and the signal channel, but poor correlation with the noise channel
+    from scipy.stats import pearsonr
+    r = pearsonr(df[cols].values.T[:,0], x1)
+    
+    #Let's make sure this is near 1
+    np.testing.assert_array_almost_equal(np.array(r), [0.9995890033162632, 1.38544234117e-313])
+    
+    #Let's also make sure the noise channel has poor correlation
+    r = pearsonr(df[cols].values.T[:,0], x2)
+    np.testing.assert_array_almost_equal(np.array(r), [-0.028356585032974967, 0.6872386081577025])
+
+
+
 def test_dimred_LFDA_usingLIBS():
     '''Tests the LFDA function using real world labeled LIBS data and
     with physically/chemically intuitive tests. 
