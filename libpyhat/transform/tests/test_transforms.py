@@ -394,7 +394,7 @@ def test_dimred_MNF_usingSalinas():
     #Now let's check that there's good correlation with the data
     #and the signal channel, but poor correlation with the noise channel
     from scipy.stats import pearsonr
-    r = pearsonr(df['wvl'].values.T[:,0], x1)
+    r = pearsonr(df[cols].values.T[:,0], x1)
     
     #Let's make sure this is near 1
     np.testing.assert_array_almost_equal(np.array(r), [0.99724445, 0.        ])
