@@ -277,21 +277,19 @@ def test_dimred_LDA_usingSalinas():
     #Open the test dataset, which contains Salinas library spectra
     df = pd.read_csv(get_path('labeled_Salinas_testfile.csv'), header=[0])
     
-    #Set up the parameters for the LDA algorithm
-    #There are only two labels/categories (geologic type '2' and '3')
-    #So there can only be a single component
+    #Set up the parameters for the LDA algorithm. There are only
+    #two labels that we're looking at, so there can only be a single component
     params = {}
     kws    = {'n_components': 1}
     
     #Grab the columns that contain spectral data
     cols = list(df.columns[4:-1])
     
-    #If the type 2 and 3 spectra are distinct from one another
-    #LDA should should present us with distinct clusters
+    #LDA should should present us with distinct clusters with respect to the labels
     df, dimred_obj = dim_red.dim_red(df, cols, 'LDA', params=params, kws=kws, ycol='gt')
     
-    #Find the indicies that correspond to the spectra and LDA results
-    #for the two labeled geologic types
+    #Find the rows that correspond to the ground truth ('gt' column) with
+    #vegetation type 2 and 6
     ind_2 = np.where(df['gt'].values==2)[0]
     ind_6 = np.where(df['gt'].values==6)[0]
     
@@ -377,7 +375,8 @@ def test_dimred_MNF_usingSalinas():
     params = {}
     kws    = {'n_components':2}
     
-    #Grab the data for geologic type 2
+    #Grab the data for vegetation type 2, which is in the ground truth
+    #('gt') column
     ind_2 = np.where(df['gt'].values==2)[0]
     
     #Run MNF on a single type of sample, so it can determine the
@@ -387,7 +386,7 @@ def test_dimred_MNF_usingSalinas():
     df, dimred_obj = dim_red.dim_red(df.loc[ind_2], cols, 'MNF',  params=params, kws=kws)
     
     #Using the MNF transform, let's ask it to give us the signal
-    #and noise channels for the first andesite spectrum
+    #and noise channels for the first spectrum for type 2
     x1 = dimred_obj.fit_transform(df[cols].values.T)[:,0] #first component (signal)
     x2 = dimred_obj.fit_transform(df[cols].values.T)[:,1] #second component (noise)
     
@@ -491,7 +490,8 @@ def test_dimred_LFDA_usingSalinas():
     #Open the test dataset, which contains labeled Salinas spectra
     df = pd.read_csv(get_path('labeled_Salinas_testfile.csv'), header=[0])
     
-    #Let's find the indicies of two geologic types (2 and 6)
+    #Find the rows that correspond to the ground truth ('gt' column) with
+    #vegetation type 2 and 6
     ind_2 = np.where(df['gt'].values==2)[0]
     ind_6 = np.where(df['gt'].values==6)[0]
     ind_2_6 = np.concatenate([ind_2, ind_6])
@@ -501,7 +501,7 @@ def test_dimred_LFDA_usingSalinas():
     
     #Set up parameters and arguments for LFDA. For a super simple test,
     #we can use a single dimension to verify that LFDA can seperate between
-    #label 2 and 6, which are distinct geologic types. 
+    #label 2 and 6, which are distinct vegetation type.
     #We just assume a single cluster in the local space (knn)
     params = {}
     kws    = {'r':1, 'metric':'plain', 'knn':1}
