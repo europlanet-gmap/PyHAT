@@ -123,10 +123,11 @@ def test_dimred_tSNE():
         'n_iter': 1000,
         'n_iter_without_progress': 300,
         'perplexity': 30,
-        'init': 'pca'}
-    df, dimred_obj = dim_red.dim_red(df, 'wvl', 't-SNE', [], params)
-    expected_div = 0.38829776644706726
-    expected_scores = [9938.469727, -802.161682]
+        'init': 'pca',
+        'algorithm': 'auto'}
+    df, dimred_obj  = dim_red.dim_red(df, 'wvl', 't-SNE', [], params)
+    expected_div    = 0.41363900899887085
+    expected_scores = [9398.069, -73.208405]
 
     assert df['t-SNE (wvl)'].shape == (103, 2)
     np.testing.assert_almost_equal(expected_div, dimred_obj.kl_divergence_)
