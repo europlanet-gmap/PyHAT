@@ -129,7 +129,7 @@ def test_dimred_tSNE():
     expected_scores = [9398.069, -73.208405]
 
     assert df['t-SNE (wvl)'].shape == (103, 2)
-    np.testing.assert_almost_equal(expected_div, dimred_obj.kl_divergence_)
+    np.testing.assert_almost_equal(expected_div, dimred_obj.kl_divergence_, decimal=6)
     np.testing.assert_array_almost_equal(expected_scores, np.array(df['t-SNE (wvl)'].iloc[0, :]))
 
 
