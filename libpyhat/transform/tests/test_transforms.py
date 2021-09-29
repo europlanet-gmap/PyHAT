@@ -225,7 +225,6 @@ def test_dimred_LDA():
            'n_init': 10,
            'max_iter': 100,
            'tol': 0.01,
-           'n_jobs': 1,
            'random_state': 1}
     cluster.cluster(df, 'wvl', 'K-Means', [], kws)
     params = {'n_components': 3}
