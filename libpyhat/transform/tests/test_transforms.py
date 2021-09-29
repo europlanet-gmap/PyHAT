@@ -123,8 +123,7 @@ def test_dimred_tSNE():
         'n_iter': 1000,
         'n_iter_without_progress': 300,
         'perplexity': 30,
-        'init': 'pca',
-        'algorithm': 'auto'}
+        'init': 'pca'}
     df, dimred_obj  = dim_red.dim_red(df, 'wvl', 't-SNE', [], params)
     expected_div    = 0.41363900899887085
     expected_scores = [9398.069, -73.208405]
