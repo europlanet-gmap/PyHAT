@@ -175,15 +175,15 @@ def test_dimred_NNMF():
 
 
 def test_dimred_NNMF_usingLIBS():
-    '''Tests the LDA function using real world labeled LIBS data and
+    '''Tests the NNMF function using real world labeled LIBS data and
     physically/chemically intuitive tests.'''
-
+    
     # Open the test dataset, which contains LIBS library spectra
     df = pd.read_csv(get_path('labeled_LIBS_testfile.csv'), header=[0, 1])
-
+    
     # NMF requires all positive values, let's set the floor to 0
     df['wvl'] = np.where(df['wvl'].values < 0, 0, df['wvl'].values)
-
+    
     # Set up the parameters for the NMF algorithm
     # The number of components and iterations are increased because NMF
     # doesn't tend to converge nicely with this dataset. Might need
@@ -192,15 +192,15 @@ def test_dimred_NNMF_usingLIBS():
     # NMF won't run in PyHAT without the add_constant param defined
     params = {}
     kws = {'add_constant': False, 'n_components': 2, 'max_iter': 20000}
-
+    
     # Run NMF
     df, dimred_obj = dim_red.dim_red(df, 'wvl', 'NNMF', params=params, kws=kws, ycol='Geologic name')
-
+    
     # Find the indicies that correspond to the spectra and NMF results
     # for the two labeled rock types
     ind_bas = np.where(df['Geologic name'].values == 'Basalt')[0]
     ind_and = np.where(df['Geologic name'].values == 'Andesite')[0]
-
+    
     # Simple test is to check the centers of the clusters. They should
     # be distinct enough, and this was verified visually in writing the test.
     and_center = np.mean(np.array([df['NNMF (wvl)']['NNMF-1'].values[ind_and], df['NNMF (wvl)']['NNMF-2'].values[ind_and]]),
@@ -208,7 +208,7 @@ def test_dimred_NNMF_usingLIBS():
     bas_center = np.mean(np.array([df['NNMF (wvl)']['NNMF-1'].values[ind_bas], df['NNMF (wvl)']['NNMF-2'].values[ind_bas]]),
                          axis=1)
     np.testing.assert_almost_equal(np.abs(bas_center - and_center), [1316662.64123436, 1196221.16644762])
-
+    
     # Also, let's make sure to do a simple check to make sure
     # the clusters are well seperated (by 2 standard deviations of their
     # average standard deviation along the two components).
