@@ -124,12 +124,12 @@ def test_dimred_tSNE():
         'n_iter_without_progress': 300,
         'perplexity': 30,
         'init': 'pca'}
-    df, dimred_obj = dim_red.dim_red(df, 'wvl', 't-SNE', [], params)
-    expected_div = 0.38829776644706726
-    expected_scores = [9938.469727, -802.161682]
-
+    df, dimred_obj  = dim_red.dim_red(df, 'wvl', 't-SNE', [], params)
+    expected_div    = 0.41363900899887085
+    expected_scores = [9398.069336, -73.208405]
+    
     assert df['t-SNE (wvl)'].shape == (103, 2)
-    np.testing.assert_almost_equal(expected_div, dimred_obj.kl_divergence_)
+    np.testing.assert_almost_equal(expected_div, dimred_obj.kl_divergence_, decimal=6)
     np.testing.assert_array_almost_equal(expected_scores, np.array(df['t-SNE (wvl)'].iloc[0, :]))
 
 
@@ -225,7 +225,6 @@ def test_dimred_LDA():
            'n_init': 10,
            'max_iter': 100,
            'tol': 0.01,
-           'n_jobs': 1,
            'random_state': 1}
     cluster.cluster(df, 'wvl', 'K-Means', [], kws)
     params = {'n_components': 3}
@@ -261,8 +260,8 @@ def test_dimred_LDA_usingLIBS():
     ind_and = np.where(df['Geologic name'].values=='Andesite')[0]
     
     #Simple test is to check the distance of the center of the clusters.
-    dist = np.median(df['LDA']['LDA-1'].values[ind_bas]) - np.median(df['LDA']['LDA-1'].values[ind_and])
-    np.testing.assert_almost_equal(np.abs(dist), 5.367776196776056)
+    dist = np.abs(np.median(df['LDA']['LDA-1'].values[ind_bas]) - np.median(df['LDA']['LDA-1'].values[ind_and]))
+    np.testing.assert_almost_equal(dist, 5.367776196776056)
     
     #Also, let's make sure to do a simple check to make sure
     #the clusters are well seperated (by 2 standard deviations).
@@ -270,43 +269,37 @@ def test_dimred_LDA_usingLIBS():
     np.testing.assert_array_less(np.array([2*stds]), np.array([dist]))
 
 
-def test_dimred_LFDA():
-    # df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
-    df = pd.read_csv(get_path('iris.csv'))
-    params = {'r': 3, 'metric': 'plain', 'knn': 5}
-    cols = list(df.columns[1:5])
-    df, dimred_obj = dim_red.dim_red(df, cols, 'LFDA', [], params, ycol='Species')
-
-    expected_Z = [[1.17658471, -5.73187812, -0.70134324], [1.26725406, -5.23944184, -0.84506262]]
-    expected_Tr = [[0.15532635, -0.67208433, -0.47664679], [-0.24346924, -0.71603884, 0.47809747]]
-    expected_values = [-0.70134324, -0.84506262, -0.64763099, -0.66074162, -0.60586882]
-    np.testing.assert_array_almost_equal(expected_Z, dimred_obj.Z[0:2, :])
-    np.testing.assert_array_almost_equal(expected_Tr, dimred_obj.Tr[0:2, :])
-    np.testing.assert_array_almost_equal(expected_values, df.iloc[0:5, -1])
-
-    df = pd.read_csv(get_path('iris.csv'))
-    params = {'r': 3, 'metric': 'weighted', 'knn': 5}
-    cols = list(df.columns[1:5])
-    df, dimred_obj = dim_red.dim_red(df, cols, 'LFDA', [], params, ycol='Species')
-
-    expected_Z = [[40.24100588, -39.75445661, -2.99501843], [43.34203702, -36.33907748, -3.60875811]]
-    expected_Tr = [[5.3124001, -4.66135999, -2.03547398], [-8.32702232, -4.96621426, 2.04166896]]
-    expected_values = [-2.99501843, -3.60875811, -2.76564543, -2.82163311, -2.58730414]
-    np.testing.assert_array_almost_equal(expected_Z, dimred_obj.Z[0:2, :])
-    np.testing.assert_array_almost_equal(expected_Tr, dimred_obj.Tr[0:2, :])
-    np.testing.assert_array_almost_equal(expected_values, df.iloc[0:5, -1])
-
-    df = pd.read_csv(get_path('iris.csv'))
-    params = {'r': 3, 'metric': 'orthonormalized', 'knn': 5}
-    cols = list(df.columns[1:5])
-    df, dimred_obj = dim_red.dim_red(df, cols, 'LFDA', [], params, ycol='Species')
-
-    expected_Z = [[-1.17658471, -6.20333752, 0.5894996], [-1.26725406, -5.71840297, 0.76816463]]
-    expected_Tr = [[-0.15532635, -0.73171269, 0.46949654], [0.24346924, -0.67718402, -0.54512867]]
-    expected_values = [0.5894996, 0.76816463, 0.54826003, 0.58978237, 0.48803708]
-    np.testing.assert_array_almost_equal(expected_Z, dimred_obj.Z[0:2, :])
-    np.testing.assert_array_almost_equal(expected_Tr, dimred_obj.Tr[0:2, :])
-    np.testing.assert_array_almost_equal(expected_values, df.iloc[0:5, -1])
+def test_dimred_LDA_usingSalinas():
+    '''Tests the LDA function using real world labeled Salinas data and
+    intuitive tests.'''
+    
+    #Open the test dataset, which contains Salinas library spectra
+    df = pd.read_csv(get_path('labeled_Salinas_testfile.csv'), header=[0])
+    
+    #Set up the parameters for the LDA algorithm. There are only
+    #two labels that we're looking at, so there can only be a single component
+    params = {}
+    kws    = {'n_components': 1}
+    
+    #Grab the columns that contain spectral data
+    cols = list(df.columns[4:-1])
+    
+    #LDA should should present us with distinct clusters with respect to the labels
+    df, dimred_obj = dim_red.dim_red(df, cols, 'LDA', params=params, kws=kws, ycol='gt')
+    
+    #Find the rows that correspond to the ground truth ('gt' column) with
+    #vegetation type 2 and 6
+    ind_2 = np.where(df['gt'].values==2)[0]
+    ind_6 = np.where(df['gt'].values==6)[0]
+    
+    #Simple test is to check the distance of the center of the clusters.
+    dist = np.abs(np.median(df.iloc[:,-1].values[ind_2]) - np.median(df.iloc[:,-1].values[ind_6]))
+    np.testing.assert_almost_equal(dist, 4.293384107071617)
+    
+    #Also, let's make sure to do a simple check to make sure
+    #the clusters are well seperated (by 2 standard deviations).
+    stds = np.std(df.iloc[:,-1].values[ind_2]) + np.std(df.iloc[:,-1].values[ind_6])
+    np.testing.assert_array_less(np.array([2*stds]), np.array([dist]))
 
 
 def test_dimred_MNF():
@@ -370,12 +363,90 @@ def test_dimred_MNF_usingLIBS():
     np.testing.assert_array_almost_equal(np.array(r), [0.05240176, 0.24263178])
 
 
+def test_dimred_MNF_usingSalinas():
+    '''Tests the MNF function using real world labeled Salinas
+     data and intuitive tests.'''
+    
+    #Open the test dataset, which contains labeled Salinas spectra
+    df = pd.read_csv(get_path('labeled_Salinas_testfile.csv'), header=[0])
+    
+    #Set up parameters and arguments for MNF
+    params = {}
+    kws    = {'n_components':2}
+    
+    #Grab the data for vegetation type 2, which is in the ground truth
+    #('gt') column
+    ind_2 = np.where(df['gt'].values==2)[0]
+    
+    #Run MNF on a single type of sample, so it can determine the
+    #channels for that spectra, which should be relatively consistent,
+    #experimental factors held constant (assumption).
+    cols = list(df.columns[4:-1])
+    df, dimred_obj = dim_red.dim_red(df.loc[ind_2], cols, 'MNF',  params=params, kws=kws)
+    
+    #Using the MNF transform, let's ask it to give us the signal
+    #and noise channels for the first spectrum for type 2
+    x1 = dimred_obj.fit_transform(df[cols].values.T)[:,0] #first component (signal)
+    x2 = dimred_obj.fit_transform(df[cols].values.T)[:,1] #second component (noise)
+    
+    #Now let's check that there's good correlation with the data
+    #and the signal channel, but poor correlation with the noise channel
+    from scipy.stats import pearsonr
+    r = pearsonr(df[cols].values.T[:,0], x1)
+    
+    #Let's make sure this is near 1
+    np.testing.assert_array_almost_equal(np.array(r), [0.9995890033162632, 1.38544234117e-313])
+    
+    #Let's also make sure the noise channel has poor correlation
+    r = pearsonr(df[cols].values.T[:,0], x2)
+    np.testing.assert_array_almost_equal(np.array(r), [-0.028356585032974967, 0.6872386081577025])
+
+
+def test_dimred_LFDA():
+    # df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
+    df = pd.read_csv(get_path('iris.csv'))
+    params = {'r': 3, 'metric': 'plain', 'knn': 5}
+    cols = list(df.columns[1:5])
+    df, dimred_obj = dim_red.dim_red(df, cols, 'LFDA', [], params, ycol='Species')
+
+    expected_Z = [[1.17658471, -5.73187812, -0.70134324], [1.26725406, -5.23944184, -0.84506262]]
+    expected_Tr = [[0.15532635, -0.67208433, -0.47664679], [-0.24346924, -0.71603884, 0.47809747]]
+    expected_values = [-0.70134324, -0.84506262, -0.64763099, -0.66074162, -0.60586882]
+    np.testing.assert_array_almost_equal(expected_Z, dimred_obj.Z[0:2, :])
+    np.testing.assert_array_almost_equal(expected_Tr, dimred_obj.Tr[0:2, :])
+    np.testing.assert_array_almost_equal(expected_values, df.iloc[0:5, -1])
+
+    df = pd.read_csv(get_path('iris.csv'))
+    params = {'r': 3, 'metric': 'weighted', 'knn': 5}
+    cols = list(df.columns[1:5])
+    df, dimred_obj = dim_red.dim_red(df, cols, 'LFDA', [], params, ycol='Species')
+
+    expected_Z = [[40.24100588, -39.75445661, -2.99501843], [43.34203702, -36.33907748, -3.60875811]]
+    expected_Tr = [[5.3124001, -4.66135999, -2.03547398], [-8.32702232, -4.96621426, 2.04166896]]
+    expected_values = [-2.99501843, -3.60875811, -2.76564543, -2.82163311, -2.58730414]
+    np.testing.assert_array_almost_equal(expected_Z, dimred_obj.Z[0:2, :])
+    np.testing.assert_array_almost_equal(expected_Tr, dimred_obj.Tr[0:2, :])
+    np.testing.assert_array_almost_equal(expected_values, df.iloc[0:5, -1])
+
+    df = pd.read_csv(get_path('iris.csv'))
+    params = {'r': 3, 'metric': 'orthonormalized', 'knn': 5}
+    cols = list(df.columns[1:5])
+    df, dimred_obj = dim_red.dim_red(df, cols, 'LFDA', [], params, ycol='Species')
+
+    expected_Z = [[-1.17658471, -6.20333752, 0.5894996], [-1.26725406, -5.71840297, 0.76816463]]
+    expected_Tr = [[-0.15532635, -0.73171269, 0.46949654], [0.24346924, -0.67718402, -0.54512867]]
+    expected_values = [0.5894996, 0.76816463, 0.54826003, 0.58978237, 0.48803708]
+    np.testing.assert_array_almost_equal(expected_Z, dimred_obj.Z[0:2, :])
+    np.testing.assert_array_almost_equal(expected_Tr, dimred_obj.Tr[0:2, :])
+    np.testing.assert_array_almost_equal(expected_values, df.iloc[0:5, -1])
+
+
 def test_dimred_LFDA_usingLIBS():
-    '''Tests the MNF function using real world labeled LIBS data and
+    '''Tests the LFDA function using real world labeled LIBS data and
     with physically/chemically intuitive tests. 
     
     Note: Tried developing tests for array equivalence, but LFDA is rather 
-    inconcistent in how it chooses the location of the two clusters
+    inconsistent in how it chooses the location of the two clusters
     and their absolute locations. For now, the test is only for separability'''
     
     #Open the test dataset, which contains LIBS library spectra
@@ -405,3 +476,49 @@ def test_dimred_LFDA_usingLIBS():
     #Verify that there are two *very* seperable clusters in component 1
     #by comparing their distance to 10000 times their combined standard deviations
     np.testing.assert_array_less(s1_bas_and*1000, np.abs(m1_bas-m1_and))
+
+
+def test_dimred_LFDA_usingSalinas():
+    '''Tests the LFDA function using real world labeled Salinas data and
+    with intuitive tests. 
+    
+    Note: Tried developing tests for array equivalence, but LFDA is rather 
+    inconsistent in how it chooses the location of the two clusters
+    and their absolute locations. For now, the test is only for separability'''
+    
+    #Open the test dataset, which contains labeled Salinas spectra
+    df = pd.read_csv(get_path('labeled_Salinas_testfile.csv'), header=[0])
+    
+    #Find the rows that correspond to the ground truth ('gt' column) with
+    #vegetation type 2 and 6
+    ind_2 = np.where(df['gt'].values==2)[0]
+    ind_6 = np.where(df['gt'].values==6)[0]
+    ind_2_6 = np.concatenate([ind_2, ind_6])
+    
+    #Let's only use the rows with types 2 and 6
+    df = df.loc[ind_2_6]
+    
+    #Set up parameters and arguments for LFDA. For a super simple test,
+    #we can use a single dimension to verify that LFDA can seperate between
+    #label 2 and 6, which are distinct vegetation type.
+    #We just assume a single cluster in the local space (knn)
+    params = {}
+    kws    = {'r':1, 'metric':'plain', 'knn':1}
+    
+    #Perform LFDA
+    cols = list(df.columns[4:-1])
+    df, dimred_obj = dim_red.dim_red(df, cols, 'LFDA', params=params, kws=kws, ycol='gt')
+    
+    #Compute the mean and standard deviation of the two sample types
+    #First, find their indicies in the new dataframe
+    ind_2 = np.where(df['gt'].values==2)[0]
+    ind_6 = np.where(df['gt'].values==6)[0]
+    c1_2 = df.iloc[:,-1].values[ind_2]
+    c1_6 = df.iloc[:,-1].values[ind_6]
+    m1_2 = np.mean(c1_2)
+    m1_6 = np.mean(c1_6)
+    s1_2_6 = np.std(c1_2)+np.std(c1_6)
+    
+    #Verify that there are two *very* seperable clusters in component 1
+    #by comparing their distance to 10000 times their combined standard deviations
+    np.testing.assert_array_less(s1_2_6*1000, np.abs(m1_2 - m1_6))
