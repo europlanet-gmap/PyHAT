@@ -175,8 +175,7 @@ def test_dimred_NNMF():
 
 
 def test_dimred_NNMF_usingLIBS():
-    '''Tests the NNMF function using real world labeled LIBS data and
-    physically/chemically intuitive tests.'''
+    '''Intuitive tests the NNMF function using real world labeled LIBS data.'''
     
     # Open the test dataset, which contains LIBS library spectra
     df = pd.read_csv(get_path('labeled_LIBS_testfile.csv'), header=[0, 1])
@@ -219,8 +218,7 @@ def test_dimred_NNMF_usingLIBS():
 
 
 def test_dimred_NNMF_usingSalinas():
-    '''Tests the NNMF function using real world labeled Salinas data and
-    intuitive tests.'''
+    '''Intuitive tests the NNMF function using real world labeled Salinas data.'''
     
     # Open the test dataset, which contains Salinas spectra
     df = pd.read_csv(get_path('labeled_Salinas_testfile.csv'), header=[0])
@@ -293,8 +291,7 @@ def test_dimred_LDA():
 
 
 def test_dimred_LDA_usingLIBS():
-    '''Tests the LDA function using real world labeled LIBS data and 
-    physically/chemically intuitive tests.'''
+    '''Intuitive tests the LDA function using real world labeled LIBS data.'''    
     
     #Open the test dataset, which contains LIBS library spectra
     df = pd.read_csv(get_path('labeled_LIBS_testfile.csv'), header=[0, 1])
@@ -325,8 +322,7 @@ def test_dimred_LDA_usingLIBS():
 
 
 def test_dimred_LDA_usingSalinas():
-    '''Tests the LDA function using real world labeled Salinas data and
-    intuitive tests.'''
+    '''Intuitive tests the LDA function using real world labeled Salinas data.'''
     
     #Open the test dataset, which contains Salinas library spectra
     df = pd.read_csv(get_path('labeled_Salinas_testfile.csv'), header=[0])
@@ -382,8 +378,7 @@ def test_dimred_MNF():
 
 
 def test_dimred_MNF_usingLIBS():
-    '''Tests the MNF function using real world labeled LIBS data and
-    with physically/chemically intuitive tests.'''
+    '''Intuitive tests the MNF function using real world labeled LIBS data.'''
     
     #Open the test dataset, which contains LIBS library spectra
     df = pd.read_csv(get_path('labeled_LIBS_testfile.csv'), header=[0, 1])
@@ -419,8 +414,7 @@ def test_dimred_MNF_usingLIBS():
 
 
 def test_dimred_MNF_usingSalinas():
-    '''Tests the MNF function using real world labeled Salinas
-     data and intuitive tests.'''
+    '''Intuitive tests the MNF function using real world labeled Salinas data.'''
     
     #Open the test dataset, which contains labeled Salinas spectra
     df = pd.read_csv(get_path('labeled_Salinas_testfile.csv'), header=[0])
@@ -497,8 +491,7 @@ def test_dimred_LFDA():
 
 
 def test_dimred_LFDA_usingLIBS():
-    '''Tests the LFDA function using real world labeled LIBS data and
-    with physically/chemically intuitive tests. 
+    '''Intuitive tests the LFDA function using real world labeled LIBS data.'''
     
     Note: Tried developing tests for array equivalence, but LFDA is rather 
     inconsistent in how it chooses the location of the two clusters
@@ -534,12 +527,12 @@ def test_dimred_LFDA_usingLIBS():
 
 
 def test_dimred_LFDA_usingSalinas():
-    '''Tests the LFDA function using real world labeled Salinas data and
-    with intuitive tests. 
+    '''Intuitive tests the LFDA function using real world labeled Salinas data.'''
     
     Note: Tried developing tests for array equivalence, but LFDA is rather 
     inconsistent in how it chooses the location of the two clusters
-    and their absolute locations. For now, the test is only for separability'''
+    and their absolute locations. For now, the test is only for separability.
+    This *may* have changed in the latest version of scikit-learn (?)'''
     
     #Open the test dataset, which contains labeled Salinas spectra
     df = pd.read_csv(get_path('labeled_Salinas_testfile.csv'), header=[0])
