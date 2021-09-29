@@ -395,11 +395,11 @@ def test_dimred_MNF_usingSalinas():
     r = pearsonr(df[cols].values.T[:,0], x1)
     
     #Let's make sure this is near 1
-    np.testing.assert_array_almost_equal(np.array(r), [0.99724445, 0.        ])
+    np.testing.assert_array_almost_equal(np.array(r), [0.9995890033162632, 1.38544234117e-313])
     
     #Let's also make sure the noise channel has poor correlation
     r = pearsonr(df[cols].values.T[:,0], x2)
-    np.testing.assert_array_almost_equal(np.array(r), [0.05240176, 0.24263178])
+    np.testing.assert_array_almost_equal(np.array(r), [-0.028356585032974967, 0.6872386081577025])
 
 
 def test_dimred_LFDA():
