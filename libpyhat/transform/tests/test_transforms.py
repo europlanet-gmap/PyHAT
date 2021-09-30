@@ -491,11 +491,12 @@ def test_dimred_LFDA():
 
 
 def test_dimred_LFDA_usingLIBS():
-    '''Intuitive tests the LFDA function using real world labeled LIBS data.'''
+    '''Intuitive tests the LFDA function using real world labeled LIBS data.
     
     Note: Tried developing tests for array equivalence, but LFDA is rather 
     inconsistent in how it chooses the location of the two clusters
-    and their absolute locations. For now, the test is only for separability'''
+    and their absolute locations. For now, the test is only for separability.
+    This *may* have changed in the latest version of scikit-learn (?)'''
     
     #Open the test dataset, which contains LIBS library spectra
     df = pd.read_csv(get_path('labeled_LIBS_testfile.csv'), header=[0, 1])
@@ -527,7 +528,7 @@ def test_dimred_LFDA_usingLIBS():
 
 
 def test_dimred_LFDA_usingSalinas():
-    '''Intuitive tests the LFDA function using real world labeled Salinas data.'''
+    '''Intuitive tests the LFDA function using real world labeled Salinas data.
     
     Note: Tried developing tests for array equivalence, but LFDA is rather 
     inconsistent in how it chooses the location of the two clusters
