@@ -347,10 +347,18 @@ def test_dimred_LDA_usingSalinas():
     dist = np.abs(np.median(df.iloc[:,-1].values[ind_2]) - np.median(df.iloc[:,-1].values[ind_6]))
     np.testing.assert_almost_equal(dist, 4.293384107071617)
     
+    #The same test, but using output from R (version 4.1.0) and the LDA function
+    #within MASS (version 7.3-54). Provided by Itiya Aneece.
+    np.testing.assert_almost_equal(dist, 4.29338410707116) 
+    
     #Also, let's make sure to do a simple check to make sure
     #the clusters are well seperated (by 2 standard deviations).
     stds = np.std(df.iloc[:,-1].values[ind_2]) + np.std(df.iloc[:,-1].values[ind_6])
     np.testing.assert_array_less(np.array([2*stds]), np.array([dist]))
+    
+    #Test the numerical values of 2 standard deviations with output from R.
+    #See two comments above.
+    np.testing.assert_almost_equal(2*stds, 2.53882297107126)
 
 
 def test_dimred_MNF():
