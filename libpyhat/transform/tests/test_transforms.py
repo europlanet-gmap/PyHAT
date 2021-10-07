@@ -358,6 +358,10 @@ def test_dimred_LDA_usingSalinas():
     
     #Test the numerical values of 2 standard deviations with output from R.
     #See two comments above.
+    #Note: the np.std function computes the population standard deviation, not
+    #sample standard deviation, which is computed by STDEV in excel and the 
+    #aggregate function in R 
+    stds = np.std(df.iloc[:,-1].values[ind_2], ddof=1) + np.std(df.iloc[:,-1].values[ind_6], ddof=1)
     np.testing.assert_almost_equal(2*stds, 2.53882297107126)
 
 
