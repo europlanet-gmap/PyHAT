@@ -218,7 +218,12 @@ def test_dimred_NNMF_usingLIBS():
 
 
 def test_dimred_NNMF_usingSalinas():
-    '''Intuitive tests the NNMF function using real world labeled Salinas data.'''
+    '''Intuitive tests the NNMF function using real world labeled Salinas data.
+    
+    Note: NMF in R does not order the components similarly and it is
+    difficult to find an identical parameter set between R and scikit-learn
+    to produce a numerical verification. However, the following test on
+    component 1 and 2 for 'W' passed in R.'''
     
     # Open the test dataset, which contains Salinas spectra
     df = pd.read_csv(get_path('labeled_Salinas_testfile.csv'), header=[0])
@@ -266,16 +271,10 @@ def test_dimred_NNMF_usingSalinas():
     stds = np.std(df.iloc[:,-2:].values[ind_2], axis=0) + np.std(df.iloc[:,-2:].values[ind_6], axis=0)      
     dist = np.abs(center_2 - center_6)
     np.testing.assert_array_less(np.array([2 * stds]), np.array([dist]))
-    
-    # Note: NMF in R does not order the components similarly and it is
-    # difficult to find an identical parameter set between R and scikit-learn
-    # to produce a numerical verification. However, the following test on 
-    # component 1 and 2 for 'W' passed in R.
 
 
 def test_dimred_LDA():
     df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
-
     kws = {'n_clusters': 5,
            'n_init': 10,
            'max_iter': 100,
