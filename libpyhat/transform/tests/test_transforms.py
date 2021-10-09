@@ -263,7 +263,7 @@ def test_dimred_NNMF_usingSalinas():
     # be distinct enough, and this was verified visually in writing the test.
     center_2 = np.median(np.array([df.iloc[:,-1].values[ind_2], df.iloc[:,-2].values[ind_2]]), axis=1)
     center_6 = np.median(np.array([df.iloc[:,-1].values[ind_6], df.iloc[:,-2].values[ind_6]]), axis=1)
-    np.testing.assert_almost_equal(np.abs(center_2 - center_6), [46.34637998 24.59875791])
+    np.testing.assert_almost_equal(np.abs(center_2 - center_6), [46.34637998, 24.59875791])
     
     # Also, let's make sure to do a simple check to make sure
     # the clusters are well seperated (by 2 standard deviations of their
