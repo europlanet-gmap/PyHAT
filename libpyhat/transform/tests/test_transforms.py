@@ -175,15 +175,14 @@ def test_dimred_NNMF():
 
 
 def test_dimred_NNMF_usingLIBS():
-    '''Tests the LDA function using real world labeled LIBS data and
-    physically/chemically intuitive tests.'''
-
+    '''Intuitive tests the NNMF function using real world labeled LIBS data.'''
+    
     # Open the test dataset, which contains LIBS library spectra
     df = pd.read_csv(get_path('labeled_LIBS_testfile.csv'), header=[0, 1])
-
+    
     # NMF requires all positive values, let's set the floor to 0
     df['wvl'] = np.where(df['wvl'].values < 0, 0, df['wvl'].values)
-
+    
     # Set up the parameters for the NMF algorithm
     # The number of components and iterations are increased because NMF
     # doesn't tend to converge nicely with this dataset. Might need
@@ -192,15 +191,15 @@ def test_dimred_NNMF_usingLIBS():
     # NMF won't run in PyHAT without the add_constant param defined
     params = {}
     kws = {'add_constant': False, 'n_components': 2, 'max_iter': 20000}
-
+    
     # Run NMF
     df, dimred_obj = dim_red.dim_red(df, 'wvl', 'NNMF', params=params, kws=kws, ycol='Geologic name')
-
+    
     # Find the indicies that correspond to the spectra and NMF results
     # for the two labeled rock types
     ind_bas = np.where(df['Geologic name'].values == 'Basalt')[0]
     ind_and = np.where(df['Geologic name'].values == 'Andesite')[0]
-
+    
     # Simple test is to check the centers of the clusters. They should
     # be distinct enough, and this was verified visually in writing the test.
     and_center = np.mean(np.array([df['NNMF (wvl)']['NNMF-1'].values[ind_and], df['NNMF (wvl)']['NNMF-2'].values[ind_and]]),
@@ -208,13 +207,67 @@ def test_dimred_NNMF_usingLIBS():
     bas_center = np.mean(np.array([df['NNMF (wvl)']['NNMF-1'].values[ind_bas], df['NNMF (wvl)']['NNMF-2'].values[ind_bas]]),
                          axis=1)
     np.testing.assert_almost_equal(np.abs(bas_center - and_center), [1316662.64123436, 1196221.16644762])
-
+    
     # Also, let's make sure to do a simple check to make sure
     # the clusters are well seperated (by 2 standard deviations of their
     # average standard deviation along the two components).
     stds = np.mean(np.std(df['NNMF (wvl)'].values[ind_bas], axis=0)) + np.mean(
         np.std(df['NNMF (wvl)'].values[ind_and], axis=0))
     dist = np.linalg.norm(np.vstack([and_center, bas_center]))
+    np.testing.assert_array_less(np.array([2 * stds]), np.array([dist]))
+
+
+def test_dimred_NNMF_usingSalinas():
+    '''Intuitive tests the NNMF function using real world labeled Salinas data.'''
+    
+    # Open the test dataset, which contains Salinas spectra
+    df = pd.read_csv(get_path('labeled_Salinas_testfile.csv'), header=[0])
+    
+    # Find the indicies that correspond to the spectra and NMF results
+    # for the two labeled vegetation types in the ground truth ('gt') column
+    ind_2 = np.where(df['gt'].values == 2)[0]
+    ind_6 = np.where(df['gt'].values == 6)[0]
+    ind_2_6 = np.concatenate([ind_2, ind_6])
+    
+    # Let's cull the dataset of all ground truths (vegetation types) that
+    # don't correspont to type 2 and 6
+    df = df.loc[ind_2_6]
+    
+    # NMF requires all positive values, let's set the floor to 0
+    # First we'll need to grab the columns with spectral data
+    cols     = list(df.columns[4:-1])
+    df[cols] = np.where(df[cols].values < 0, 0, df[cols].values)
+    
+    # Set up the parameters for the NMF algorithm
+    # The number of components and iterations are increased because NMF
+    # doesn't tend to converge nicely with this dataset. Might need
+    # more samples in each category to get it behave
+    # NMF won't run in PyHAT without the add_constant param defined
+    params = {}
+    kws = {'add_constant': False, 'n_components': 2, 'max_iter': 20000}
+    
+    # Run NMF
+    df, dimred_obj = dim_red.dim_red(df, cols, 'NNMF', params=params, kws=kws, ycol='gt')
+    
+    # Find the indicies that correspond to the spectra and NMF results
+    # for the two labeled vegetation types in the ground truth ('gt') column
+    ind_2 = np.where(df['gt'].values == 2)[0]
+    ind_6 = np.where(df['gt'].values == 6)[0]
+    
+    # Simple test is to check the centers of the clusters. They should
+    # be distinct enough, and this was verified visually in writing the test.
+    center_2 = np.mean(np.array([df.iloc[:,-1].values[ind_2], df.iloc[:,-2].values[ind_2]]),
+                         axis=1)
+    center_6 = np.mean(np.array([df.iloc[:,-1].values[ind_6], df.iloc[:,-2].values[ind_6]]),
+                         axis=1)
+    np.testing.assert_almost_equal(np.abs(center_2 - center_6), [45.85902054, 23.89010837])
+    
+    # Also, let's make sure to do a simple check to make sure
+    # the clusters are well seperated (by 2 standard deviations of their
+    # average standard deviation along the two components).
+    # In reality, they're separated by much more than a few std deviations
+    stds = np.mean(np.std(df.iloc[:,-2:].values[ind_2], axis=0)) + np.mean(np.std(df.iloc[:,-2:].values[ind_6], axis=0))
+    dist = np.linalg.norm(np.vstack([center_2, center_6]))
     np.testing.assert_array_less(np.array([2 * stds]), np.array([dist]))
 
 
@@ -238,8 +291,7 @@ def test_dimred_LDA():
 
 
 def test_dimred_LDA_usingLIBS():
-    '''Tests the LDA function using real world labeled LIBS data and 
-    physically/chemically intuitive tests.'''
+    '''Intuitive tests the LDA function using real world labeled LIBS data.'''    
     
     #Open the test dataset, which contains LIBS library spectra
     df = pd.read_csv(get_path('labeled_LIBS_testfile.csv'), header=[0, 1])
@@ -270,8 +322,7 @@ def test_dimred_LDA_usingLIBS():
 
 
 def test_dimred_LDA_usingSalinas():
-    '''Tests the LDA function using real world labeled Salinas data and
-    intuitive tests.'''
+    '''Intuitive tests the LDA function using real world labeled Salinas data.'''
     
     #Open the test dataset, which contains Salinas library spectra
     df = pd.read_csv(get_path('labeled_Salinas_testfile.csv'), header=[0])
@@ -327,8 +378,7 @@ def test_dimred_MNF():
 
 
 def test_dimred_MNF_usingLIBS():
-    '''Tests the MNF function using real world labeled LIBS data and
-    with physically/chemically intuitive tests.'''
+    '''Intuitive tests the MNF function using real world labeled LIBS data.'''
     
     #Open the test dataset, which contains LIBS library spectra
     df = pd.read_csv(get_path('labeled_LIBS_testfile.csv'), header=[0, 1])
@@ -364,8 +414,7 @@ def test_dimred_MNF_usingLIBS():
 
 
 def test_dimred_MNF_usingSalinas():
-    '''Tests the MNF function using real world labeled Salinas
-     data and intuitive tests.'''
+    '''Intuitive tests the MNF function using real world labeled Salinas data.'''
     
     #Open the test dataset, which contains labeled Salinas spectra
     df = pd.read_csv(get_path('labeled_Salinas_testfile.csv'), header=[0])
@@ -442,12 +491,12 @@ def test_dimred_LFDA():
 
 
 def test_dimred_LFDA_usingLIBS():
-    '''Tests the LFDA function using real world labeled LIBS data and
-    with physically/chemically intuitive tests. 
+    '''Intuitive tests the LFDA function using real world labeled LIBS data.
     
     Note: Tried developing tests for array equivalence, but LFDA is rather 
     inconsistent in how it chooses the location of the two clusters
-    and their absolute locations. For now, the test is only for separability'''
+    and their absolute locations. For now, the test is only for separability.
+    This *may* have changed in the latest version of scikit-learn (?)'''
     
     #Open the test dataset, which contains LIBS library spectra
     df = pd.read_csv(get_path('labeled_LIBS_testfile.csv'), header=[0, 1])
@@ -479,12 +528,12 @@ def test_dimred_LFDA_usingLIBS():
 
 
 def test_dimred_LFDA_usingSalinas():
-    '''Tests the LFDA function using real world labeled Salinas data and
-    with intuitive tests. 
+    '''Intuitive tests the LFDA function using real world labeled Salinas data.
     
     Note: Tried developing tests for array equivalence, but LFDA is rather 
     inconsistent in how it chooses the location of the two clusters
-    and their absolute locations. For now, the test is only for separability'''
+    and their absolute locations. For now, the test is only for separability.
+    This *may* have changed in the latest version of scikit-learn (?)'''
     
     #Open the test dataset, which contains labeled Salinas spectra
     df = pd.read_csv(get_path('labeled_Salinas_testfile.csv'), header=[0])
