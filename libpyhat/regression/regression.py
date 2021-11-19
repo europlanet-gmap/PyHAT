@@ -12,7 +12,7 @@ import sklearn.linear_model as linear
 import sklearn.svm as svm
 import sklearn.gaussian_process as gp
 from sklearn.cross_decomposition import PLSRegression
-from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
 
 class regression:
     def __init__(self, method, params, i=0):
@@ -29,7 +29,8 @@ class regression:
                                'LASSO LARS',
                                'SVR',
                                'KRR',
-                               'GBR'
+                               'GBR',
+                               'RF'
                                ]
         self.method = method
         self.outliers = None
@@ -83,6 +84,8 @@ class regression:
 
         if self.method[i] == 'GBR':
             self.model = GradientBoostingRegressor(**params[i])
+        if self.method[i] == 'RF':
+            self.model = RandomForestRegressor(**params[i])
 
 
     def fit(self, x, y):
