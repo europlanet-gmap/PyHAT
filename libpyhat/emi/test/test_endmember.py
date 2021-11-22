@@ -44,4 +44,4 @@ def test_endmember_PPI_usingSalinas():
     # truths (gt=9 and gt=10) to be endmembers, though these did 
     # not match to the second and third endmembers found in ENVI's 
     # PPI function.
-    np.testing.assert_qual(gt[y[1:]], [9, 10])
+    np.testing.assert_equal(gt[y[1:]], [9, 10])
