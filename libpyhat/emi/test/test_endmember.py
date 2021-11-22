@@ -1,7 +1,7 @@
 import numpy as np
 import pandas as pd
 from libpyhat.examples import get_path
-from libpyhat import emi
+from libpyhat.emi import emi
 from osgeo import gdal
 
 def test_endmember_PPI_usingSalinas():
