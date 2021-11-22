@@ -18,7 +18,7 @@ def test_endmember_PPI_usingSalinas():
     # Find the path to the image file
     fp   = get_path('labeled_SalinasImage_testfile.tif')
     # Open the tif with gdal, and turn it into an array
-    img  = gdal.Open(filepath)
+    img  = gdal.Open(fp)
     data = img.ReadAsArray()
     # Unravel the image into a row of pixels (2-D array)
     data = np.reshape(data.T, (75*16, 205))
