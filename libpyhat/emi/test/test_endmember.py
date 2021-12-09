@@ -115,8 +115,8 @@ def test_endmember_FIPPI_usingSalinas():
     # gt (0) and two of the lettuce/romaine.
     # Ordering of the endmembers seems to be consistent so
     # they're not sorted.
-    # FIPPI results in ENVI matched those of PPI in ENVI (0, 0, and 14).
-    np.testing.assert_equal(gt[y,0], [0,0,0,14,14])
+    # FIPPI results in ENVI matched those of PPI in ENVI (gt=0, 0, and 14).
+    np.testing.assert_equal(gt[y,0], [14, 14, 0, 0, 0])
 
 def test_endmember_NFINDR_usingSalinas():
     '''Intuitive tests the NFIND-R function using real world labeled 
@@ -171,3 +171,60 @@ def test_endmember_NFINDR_usingSalinas():
     # Ordering of the endmembers is not consistent from run to run,
     # so sorting is necessary.
     np.testing.assert_equal(np.sort(gt[y,0]]), [0, 0, 14])
+
+def test_endmember_ATGP_usingSalinas():
+    '''Intuitive tests the ATGP function using real world labeled 
+    Salinas data.
+    
+    Note: The underlying Salinas dataset contains several labels 
+    ('ground truths') that correspond to specific crop types:
+    gt=0  Area in-between crop fields; can have a huge range of spectral characteristics
+    gt=9  soil-vineyard-develop
+    gt=10 corn-senesced-weeds
+    gt=14 lettuce-romaine-7wk
+    
+    Note: We're reading in 205 spectral bands and do not include the 
+    band location as a parameter.
+    '''
+    
+    ## Open the test dataset, which contains Salinas spectra
+    # Find the path to the image file
+    fp   = get_path('labeled_SalinasImage_testfile.tif')
+    # Open the tif with gdal, and turn it into an array
+    img  = gdal.Open(fp)
+    data = img.ReadAsArray()
+      
+    '''
+    # Unravel the image into a row of pixels (2-D array)
+    data = np.reshape(data.T, (75*16, 205))
+    
+    # The first band is the groundtruth (terrain type)
+    gt   = data[:,0]
+    # The subsequent bands are spectral intensities
+    data = data[:,1:]'''
+    
+    # Unraveling the image data into a row of pixels
+    # (2-D array) the stupid way. This is guaranteed to
+    # preserve order in a predictable way.
+    d = np.zeros((np.shape(data)[1]*np.shape(data)[2], np.shape(data)[0]))
+    k = 0
+    for i in range(np.shape(data)[1]):
+        for j in range(np.shape(data)[2]):
+            d[k, :] = data[:,i,j]
+            k += 1
+    
+    # Build a pandas dataframe with appropriate 2-level
+    # multiindex column structure that PyHAT expects
+    df = pd.DataFrame(data, columns=list(np.arange(0,np.shape(data)[1])))
+    df.columns = pd.MultiIndex.from_tuples(zip(['wvl']*np.shape(data)[1], df.columns))
+    
+    # Run ATGP with 3 endmembers specified
+    x,y = emi.emi(df, col='wvl', emi_method='ATGP', n_endmembers=3)
+    
+    # In testing, Pysptools' ATGP found gt=0, gt=14, and gt=0.
+    # Ordering of the endmembers seems to be consistent from run to run,
+    # so we do not sort.
+    np.testing.assert_equal(gt[y,0]], [0, 14, 0])
+    
+    # Note: ENVI's ATGP found exact matches to these endmembers.
+    np.testing.assert_equal(y, [568, 8, 147])
