@@ -46,7 +46,7 @@ def test_endmember_PPI_usingSalinas():
     
     # Build a pandas dataframe with appropriate 2-level
     # multiindex column structure that PyHAT expects
-    df = pd.DataFrame(data, columns=list(np.arange(0,np.shape(data)[1])))
+    df = pd.DataFrame(d, columns=list(np.arange(0,np.shape(data)[1])))
     df.columns = pd.MultiIndex.from_tuples(zip(['wvl']*np.shape(data)[1], df.columns))
     
     # Run PPI with 3 endmembers specified
@@ -104,7 +104,7 @@ def test_endmember_FIPPI_usingSalinas():
     
     # Build a pandas dataframe with appropriate 2-level
     # multiindex column structure that PyHAT expects
-    df = pd.DataFrame(data, columns=list(np.arange(0,np.shape(data)[1])))
+    df = pd.DataFrame(d, columns=list(np.arange(0,np.shape(data)[1])))
     df.columns = pd.MultiIndex.from_tuples(zip(['wvl']*np.shape(data)[1], df.columns))
     
     # Run FIPPI with 3 endmembers specified
@@ -161,7 +161,7 @@ def test_endmember_NFINDR_usingSalinas():
     
     # Build a pandas dataframe with appropriate 2-level
     # multiindex column structure that PyHAT expects
-    df = pd.DataFrame(data, columns=list(np.arange(0,np.shape(data)[1])))
+    df = pd.DataFrame(d, columns=list(np.arange(0,np.shape(data)[1])))
     df.columns = pd.MultiIndex.from_tuples(zip(['wvl']*np.shape(data)[1], df.columns))
     
     # Run NFIND-R with 3 endmembers specified
@@ -215,7 +215,7 @@ def test_endmember_ATGP_usingSalinas():
     
     # Build a pandas dataframe with appropriate 2-level
     # multiindex column structure that PyHAT expects
-    df = pd.DataFrame(data, columns=list(np.arange(0,np.shape(data)[1])))
+    df = pd.DataFrame(d, columns=list(np.arange(0,np.shape(data)[1])))
     df.columns = pd.MultiIndex.from_tuples(zip(['wvl']*np.shape(data)[1], df.columns))
     
     # Run ATGP with 3 endmembers specified
