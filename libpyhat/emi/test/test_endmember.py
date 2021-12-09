@@ -170,7 +170,7 @@ def test_endmember_NFINDR_usingSalinas():
     # In testing, Pysptools' NFIND-R found gt=0, gt=0, and gt=14.
     # Ordering of the endmembers is not consistent from run to run,
     # so sorting is necessary.
-    np.testing.assert_equal(np.sort(d[y,0]]), [0, 0, 14])
+    np.testing.assert_equal(np.sort(d[y,0]), [0, 0, 14])
 
 def test_endmember_ATGP_usingSalinas():
     '''Intuitive tests the ATGP function using real world labeled 
