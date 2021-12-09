@@ -5,14 +5,18 @@ from libpyhat.emi import emi
 from osgeo import gdal
 
 def test_endmember_PPI_usingSalinas():
-    '''Intuitive tests the PPI function using real world labeled Salinas data.
+    '''Intuitive tests the PPI function using real world labeled 
+    Salinas data.
     
-    Note: The underlying Salinas dataset contains several labels ('ground truths')
-    that correspond to specific crop types:
+    Note: The underlying Salinas dataset contains several labels 
+    ('ground truths') that correspond to specific crop types:
     gt=0  Area in-between crop fields; can have a huge range of spectral characteristics
-    gt=9  FILL IN
-    gt=10 FILL IN
-    gt=14 FILL IN'''
+    gt=9  soil-vineyard-develop
+    gt=10 corn-senesced-weeds
+    gt=14 lettuce-romaine-7wk
+    
+    Note: We're reading in 205 spectral bands and do not include the 
+    band location as a parameter.'''
     
     ## Open the test dataset, which contains Salinas spectra
     # Find the path to the image file
@@ -20,13 +24,25 @@ def test_endmember_PPI_usingSalinas():
     # Open the tif with gdal, and turn it into an array
     img  = gdal.Open(fp)
     data = img.ReadAsArray()
+    
+    '''
     # Unravel the image into a row of pixels (2-D array)
     data = np.reshape(data.T, (75*16, 205))
     
     # The first band is the groundtruth (terrain type)
     gt   = data[:,0]
     # The subsequent bands are spectral intensities
-    data = data[:,1:]
+    data = data[:,1:]'''
+    
+    # Unraveling the image data into a row of pixels
+    # (2-D array) the stupid way. This is guaranteed to
+    # preserve order in a predictable way.
+    d = np.zeros((np.shape(data)[1]*np.shape(data)[2], np.shape(data)[0]))
+    k = 0
+    for i in range(np.shape(data)[1]):
+        for j in range(np.shape(data)[2]):
+            d[k, :] = data[:,i,j]
+            k += 1    
     
     # Build a pandas dataframe with appropriate 2-level
     # multiindex column structure that PyHAT expects
@@ -36,12 +52,122 @@ def test_endmember_PPI_usingSalinas():
     # Run PPI with 3 endmembers specified
     x,y = emi.emi(df, col='wvl', emi_method='PPI', n_endmembers=3)
     
-    # ENVI's PPI function found the spectrum at 1187 (gt=14) 
-    # to be the first endmember during testing.
-    np.testing.assert_equal(y[0], 1187)
+    # Sort the endmembers and check that they match testing
+    # Ordering of the endmembers seems to be consistent so
+    # they're not sorted.
+    # Note: ENVI's PPI function found gt=0, gt=0, and gt=14.
+    np.testing.assert_equal(data[y,0], [0, 10, 10])
+
+def test_endmember_FIPPI_usingSalinas():
+    '''Intuitive tests the FIPPI function using real world labeled 
+    Salinas data.
     
-    # Pysptools' PPI function in testing found two unique ground
-    # truths (gt=9 and gt=10) to be endmembers, though these did 
-    # not match to the second and third endmembers found in ENVI's 
-    # PPI function.
-    np.testing.assert_equal(gt[y[1:]], [9, 10])
+    Note: The underlying Salinas dataset contains several labels 
+    ('ground truths') that correspond to specific crop types:
+    gt=0  Area in-between crop fields; can have a huge range of spectral characteristics
+    gt=9  soil-vineyard-develop
+    gt=10 corn-senesced-weeds
+    gt=14 lettuce-romaine-7wk
+    
+    Note: We're reading in 205 spectral bands and do not include the 
+    band location as a parameter.
+    
+    Note: ENVI's FIPPI function found the same spectral endmembers 
+    as ENVI's PPI function.
+    '''
+    
+    ## Open the test dataset, which contains Salinas spectra
+    # Find the path to the image file
+    fp   = get_path('labeled_SalinasImage_testfile.tif')
+    # Open the tif with gdal, and turn it into an array
+    img  = gdal.Open(fp)
+    data = img.ReadAsArray()
+    
+    '''
+    # Unravel the image into a row of pixels (2-D array)
+    data = np.reshape(data.T, (75*16, 205))
+    
+    # The first band is the groundtruth (terrain type)
+    gt   = data[:,0]
+    # The subsequent bands are spectral intensities
+    data = data[:,1:]'''
+    
+    # Unraveling the image data into a row of pixels
+    # (2-D array) the stupid way. This is guaranteed to
+    # preserve order in a predictable way.
+    d = np.zeros((np.shape(data)[1]*np.shape(data)[2], np.shape(data)[0]))
+    k = 0
+    for i in range(np.shape(data)[1]):
+        for j in range(np.shape(data)[2]):
+            d[k, :] = data[:,i,j]
+            k += 1    
+    
+    # Build a pandas dataframe with appropriate 2-level
+    # multiindex column structure that PyHAT expects
+    df = pd.DataFrame(data, columns=list(np.arange(0,np.shape(data)[1])))
+    df.columns = pd.MultiIndex.from_tuples(zip(['wvl']*np.shape(data)[1], df.columns))
+    
+    # Run FIPPI with 3 endmembers specified
+    # Note: For whatever reason, it will produce 5 end members anyway...
+    x,y = emi.emi(df, col='wvl', emi_method='FIPPI', n_endmembers=3)
+    
+    # In testing, Pysptools found 3 different versions of the soil
+    # gt (0) and two of the lettuce/romaine.
+    # Ordering of the endmembers seems to be consistent so
+    # they're not sorted.
+    # FIPPI results in ENVI matched those of PPI in ENVI (0, 0, and 14).
+    np.testing.assert_equal(gt[y,0], [0,0,0,14,14])
+
+def test_endmember_NFINDR_usingSalinas():
+    '''Intuitive tests the NFIND-R function using real world labeled 
+    Salinas data.
+    
+    Note: The underlying Salinas dataset contains several labels 
+    ('ground truths') that correspond to specific crop types:
+    gt=0  Area in-between crop fields; can have a huge range of spectral characteristics
+    gt=9  soil-vineyard-develop
+    gt=10 corn-senesced-weeds
+    gt=14 lettuce-romaine-7wk
+    
+    Note: We're reading in 205 spectral bands and do not include the 
+    band location as a parameter.
+    '''
+    
+    ## Open the test dataset, which contains Salinas spectra
+    # Find the path to the image file
+    fp   = get_path('labeled_SalinasImage_testfile.tif')
+    # Open the tif with gdal, and turn it into an array
+    img  = gdal.Open(fp)
+    data = img.ReadAsArray()
+      
+    '''
+    # Unravel the image into a row of pixels (2-D array)
+    data = np.reshape(data.T, (75*16, 205))
+    
+    # The first band is the groundtruth (terrain type)
+    gt   = data[:,0]
+    # The subsequent bands are spectral intensities
+    data = data[:,1:]'''
+    
+    # Unraveling the image data into a row of pixels
+    # (2-D array) the stupid way. This is guaranteed to
+    # preserve order in a predictable way.
+    d = np.zeros((np.shape(data)[1]*np.shape(data)[2], np.shape(data)[0]))
+    k = 0
+    for i in range(np.shape(data)[1]):
+        for j in range(np.shape(data)[2]):
+            d[k, :] = data[:,i,j]
+            k += 1
+    
+    # Build a pandas dataframe with appropriate 2-level
+    # multiindex column structure that PyHAT expects
+    df = pd.DataFrame(data, columns=list(np.arange(0,np.shape(data)[1])))
+    df.columns = pd.MultiIndex.from_tuples(zip(['wvl']*np.shape(data)[1], df.columns))
+    
+    # Run NFIND-R with 3 endmembers specified
+    x,y = emi.emi(df, col='wvl', emi_method='NFIND-R', n_endmembers=3)
+    
+    # In testing, Pysptools' NFIND-R found gt=0, gt=0, and gt=14.
+    # Ordering of the endmembers is not consistent from run to run,
+    # so sorting is necessary.
+    np.testing.assert_equal(np.sort(gt[y,0]]), [0, 0, 14])
