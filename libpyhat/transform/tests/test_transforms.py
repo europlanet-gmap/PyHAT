@@ -218,7 +218,12 @@ def test_dimred_NNMF_usingLIBS():
 
 
 def test_dimred_NNMF_usingSalinas():
-    '''Intuitive tests the NNMF function using real world labeled Salinas data.'''
+    '''Intuitive tests the NNMF function using real world labeled Salinas data.
+    
+    Note: NMF in R does not order the components similarly and it is
+    difficult to find an identical parameter set between R and scikit-learn
+    to produce a numerical verification. However, the following test on
+    component 1 and 2 for 'W' passed in R.'''
     
     # Open the test dataset, which contains Salinas spectra
     df = pd.read_csv(get_path('labeled_Salinas_testfile.csv'), header=[0])
@@ -256,24 +261,20 @@ def test_dimred_NNMF_usingSalinas():
     
     # Simple test is to check the centers of the clusters. They should
     # be distinct enough, and this was verified visually in writing the test.
-    center_2 = np.mean(np.array([df.iloc[:,-1].values[ind_2], df.iloc[:,-2].values[ind_2]]),
-                         axis=1)
-    center_6 = np.mean(np.array([df.iloc[:,-1].values[ind_6], df.iloc[:,-2].values[ind_6]]),
-                         axis=1)
-    np.testing.assert_almost_equal(np.abs(center_2 - center_6), [45.85902054, 23.89010837])
+    center_2 = np.median(np.array([df.iloc[:,-1].values[ind_2], df.iloc[:,-2].values[ind_2]]), axis=1)
+    center_6 = np.median(np.array([df.iloc[:,-1].values[ind_6], df.iloc[:,-2].values[ind_6]]), axis=1)
+    np.testing.assert_almost_equal(np.abs(center_2 - center_6), [46.34637998, 24.59875791])
     
     # Also, let's make sure to do a simple check to make sure
     # the clusters are well seperated (by 2 standard deviations of their
-    # average standard deviation along the two components).
-    # In reality, they're separated by much more than a few std deviations
-    stds = np.mean(np.std(df.iloc[:,-2:].values[ind_2], axis=0)) + np.mean(np.std(df.iloc[:,-2:].values[ind_6], axis=0))
-    dist = np.linalg.norm(np.vstack([center_2, center_6]))
+    # summed standard deviation in both components).
+    stds = np.std(df.iloc[:,-2:].values[ind_2], axis=0) + np.std(df.iloc[:,-2:].values[ind_6], axis=0)      
+    dist = np.abs(center_2 - center_6)
     np.testing.assert_array_less(np.array([2 * stds]), np.array([dist]))
 
 
 def test_dimred_LDA():
     df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
-
     kws = {'n_clusters': 5,
            'n_init': 10,
            'max_iter': 100,
@@ -347,10 +348,22 @@ def test_dimred_LDA_usingSalinas():
     dist = np.abs(np.median(df.iloc[:,-1].values[ind_2]) - np.median(df.iloc[:,-1].values[ind_6]))
     np.testing.assert_almost_equal(dist, 4.293384107071617)
     
+    #The same test, but using output from R (version 4.1.0) and the LDA function
+    #within MASS (version 7.3-54). Provided by Itiya Aneece.
+    np.testing.assert_almost_equal(dist, 4.29338410707116) 
+    
     #Also, let's make sure to do a simple check to make sure
     #the clusters are well seperated (by 2 standard deviations).
     stds = np.std(df.iloc[:,-1].values[ind_2]) + np.std(df.iloc[:,-1].values[ind_6])
     np.testing.assert_array_less(np.array([2*stds]), np.array([dist]))
+    
+    #Test the numerical values of 2 standard deviations with output from R.
+    #See two comments above.
+    #Note: the np.std function computes the population standard deviation, not
+    #sample standard deviation, which is computed by STDEV in excel and the 
+    #aggregate function in R 
+    stds = np.std(df.iloc[:,-1].values[ind_2], ddof=1) + np.std(df.iloc[:,-1].values[ind_6], ddof=1)
+    np.testing.assert_almost_equal(2*stds, 2.53882297107126)
 
 
 def test_dimred_MNF():
