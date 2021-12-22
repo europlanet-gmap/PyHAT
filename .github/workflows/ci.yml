@@ -40,6 +40,9 @@ jobs:
           channel-priority: strict
           activate-environment: test_env
           environment-file: environment.yml
+      - name: Install GDAL
+        run: |
+          conda install gdal
       - name: Setup python
         uses: actions/setup-python@v2
         with:
