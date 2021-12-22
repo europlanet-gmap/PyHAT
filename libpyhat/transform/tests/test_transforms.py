@@ -129,8 +129,8 @@ def test_dimred_tSNE():
     expected_scores = np.array([9398.069336, -73.208405],dtype=float)
 
     assert df['t-SNE (wvl)'].shape == (103, 2)
-    np.testing.assert_almost_equal(expected_div, dimred_obj.kl_divergence_)
-    np.testing.assert_array_almost_equal(expected_scores, np.array(df['t-SNE (wvl)'].iloc[0, :],dtype=float))
+    np.testing.assert_almost_equal(expected_div, dimred_obj.kl_divergence_,decimal=4)
+    np.testing.assert_array_almost_equal(expected_scores, np.array(df['t-SNE (wvl)'].iloc[0, :],dtype=float),decimal=4)
 
 
 def test_dimred_FastICA():
@@ -325,4 +325,4 @@ def test_dimred_MNF():
             comps = mnf.fit_transform(x)  # test the case where a numpy array is passed
             score_result = np.sort(np.sort(comps[0, :]))
             expected_scores = [-36.6691721, -5.29645881, -3.63660052, 598.27972428]
-            np.testing.assert_array_almost_equal(expected_scores, score_result,decimal=4)
+            np.testing.assert_array_almost_equal(expected_scores, score_result)
