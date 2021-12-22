@@ -40,9 +40,7 @@ jobs:
           channel-priority: strict
           activate-environment: test_env
           environment-file: environment.yml
-      - name: Install GDAL
-        run: |
-          conda install gdal
+     
       - name: Setup python
         uses: actions/setup-python@v2
         with:
@@ -65,7 +63,7 @@ jobs:
           fail_ci_if_error: true
           verbose: false
       - name: Deploy
-        if: ${{ env.GIT_BRANCH_NAME == 'master' }}
+        #if: ${{ env.GIT_BRANCH_NAME == 'master' }}
 
         run: |
           echo "We are on the master branch - deploying!"
