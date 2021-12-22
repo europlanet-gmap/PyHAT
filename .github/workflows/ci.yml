@@ -63,7 +63,7 @@ jobs:
           fail_ci_if_error: true
           verbose: false
       - name: Deploy
-        #if: ${{ env.GIT_BRANCH_NAME == 'master' }}
+        if: ${{ env.GIT_BRANCH_NAME == 'master' }}
 
         run: |
           echo "We are on the master branch - deploying!"
