@@ -325,4 +325,4 @@ def test_dimred_MNF():
             comps = mnf.fit_transform(x)  # test the case where a numpy array is passed
             score_result = np.sort(np.sort(comps[0, :]))
             expected_scores = [-36.6691721, -5.29645881, -3.63660052, 598.27972428]
-            np.testing.assert_array_almost_equal(expected_scores, score_result)
+            np.testing.assert_array_almost_equal(expected_scores, score_result,decimal=4)
