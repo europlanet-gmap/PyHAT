@@ -60,7 +60,7 @@ def test_endmember_PPI_usingSalinas():
     # Ordering of the endmembers seems to be consistent so
     # they're not sorted.
     # Note: ENVI's PPI function found gt=0, gt=0, and gt=14.
-    np.testing.assert_equal(d[y,0], [0, 10, 10])
+    np.testing.assert_equal(gt[y], [0, 10, 10])
 
 def test_endmember_FIPPI_usingSalinas():
     '''Intuitive tests the FIPPI function using real world labeled 
