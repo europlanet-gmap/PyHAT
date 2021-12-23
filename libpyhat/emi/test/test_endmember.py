@@ -109,7 +109,7 @@ def test_endmember_FIPPI_usingSalinas():
     np.testing.assert_equal(gt[y], [14, 14, 0, 0, 0])
 
 def test_endmember_NFINDR_usingSalinas():
-    '''Intuitive tests the NFIND-R function using real world labeled 
+    '''Intuitive tests the N-FINDR function using real world labeled 
     Salinas data.
     
     Note: The underlying Salinas dataset contains several labels 
@@ -149,10 +149,10 @@ def test_endmember_NFINDR_usingSalinas():
     df = pd.DataFrame(d, columns=list(np.arange(0,np.shape(d)[1])))
     df.columns = pd.MultiIndex.from_tuples(zip(['wvl']*np.shape(d)[1], df.columns))
     
-    # Run NFIND-R with 3 endmembers specified
-    x,y = emi.emi(df, col='wvl', emi_method='NFIND-R', n_endmembers=3)
+    # Run N-FINDR with 3 endmembers specified
+    x,y = emi.emi(df, col='wvl', emi_method='N-FINDR', n_endmembers=3)
     
-    # In testing, Pysptools' NFIND-R found gt=0, gt=0, and gt=14.
+    # In testing, Pysptools' N-FINDR found gt=0, gt=0, and gt=14.
     # Ordering of the endmembers is not consistent from run to run,
     # so sorting is necessary.
     np.testing.assert_equal(np.sort(gt[y]), [0, 0, 14])
