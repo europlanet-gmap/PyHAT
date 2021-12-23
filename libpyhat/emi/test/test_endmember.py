@@ -44,6 +44,10 @@ def test_endmember_PPI_usingSalinas():
             d[k, :] = data[:,i,j]
             k += 1    
     
+    # Seperate out ground truth from data
+    gt = d[:, 0]
+    d  = d[:, 1:]
+    
     # Build a pandas dataframe with appropriate 2-level
     # multiindex column structure that PyHAT expects
     df = pd.DataFrame(d, columns=list(np.arange(0,np.shape(data)[1])))
@@ -102,6 +106,10 @@ def test_endmember_FIPPI_usingSalinas():
             d[k, :] = data[:,i,j]
             k += 1    
     
+    # Seperate out ground truth from data
+    gt = d[:, 0]
+    d  = d[:, 1:]
+        
     # Build a pandas dataframe with appropriate 2-level
     # multiindex column structure that PyHAT expects
     df = pd.DataFrame(d, columns=list(np.arange(0,np.shape(data)[1])))
@@ -159,6 +167,10 @@ def test_endmember_NFINDR_usingSalinas():
             d[k, :] = data[:,i,j]
             k += 1
     
+    # Seperate out ground truth from data
+    gt = d[:, 0]
+    d  = d[:, 1:]
+    
     # Build a pandas dataframe with appropriate 2-level
     # multiindex column structure that PyHAT expects
     df = pd.DataFrame(d, columns=list(np.arange(0,np.shape(data)[1])))
@@ -212,6 +224,10 @@ def test_endmember_ATGP_usingSalinas():
         for j in range(np.shape(data)[2]):
             d[k, :] = data[:,i,j]
             k += 1
+    
+    # Seperate out ground truth from data
+    gt = d[:, 0]
+    d  = d[:, 1:]
     
     # Build a pandas dataframe with appropriate 2-level
     # multiindex column structure that PyHAT expects
