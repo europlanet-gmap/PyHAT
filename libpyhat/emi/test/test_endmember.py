@@ -50,8 +50,8 @@ def test_endmember_PPI_usingSalinas():
     
     # Build a pandas dataframe with appropriate 2-level
     # multiindex column structure that PyHAT expects
-    df = pd.DataFrame(d, columns=list(np.arange(0,np.shape(data)[1])))
-    df.columns = pd.MultiIndex.from_tuples(zip(['wvl']*np.shape(data)[1], df.columns))
+    df = pd.DataFrame(d, columns=list(np.arange(0,np.shape(d)[1])))
+    df.columns = pd.MultiIndex.from_tuples(zip(['wvl']*np.shape(d)[1], df.columns))
     
     # Run PPI with 3 endmembers specified
     x,y = emi.emi(df, col='wvl', emi_method='PPI', n_endmembers=3)
@@ -112,8 +112,8 @@ def test_endmember_FIPPI_usingSalinas():
         
     # Build a pandas dataframe with appropriate 2-level
     # multiindex column structure that PyHAT expects
-    df = pd.DataFrame(d, columns=list(np.arange(0,np.shape(data)[1])))
-    df.columns = pd.MultiIndex.from_tuples(zip(['wvl']*np.shape(data)[1], df.columns))
+    df = pd.DataFrame(d, columns=list(np.arange(0,np.shape(d)[1])))
+    df.columns = pd.MultiIndex.from_tuples(zip(['wvl']*np.shape(d)[1], df.columns))
     
     # Run FIPPI with 3 endmembers specified
     # Note: For whatever reason, it will produce 5 end members anyway...
@@ -173,8 +173,8 @@ def test_endmember_NFINDR_usingSalinas():
     
     # Build a pandas dataframe with appropriate 2-level
     # multiindex column structure that PyHAT expects
-    df = pd.DataFrame(d, columns=list(np.arange(0,np.shape(data)[1])))
-    df.columns = pd.MultiIndex.from_tuples(zip(['wvl']*np.shape(data)[1], df.columns))
+    df = pd.DataFrame(d, columns=list(np.arange(0,np.shape(d)[1])))
+    df.columns = pd.MultiIndex.from_tuples(zip(['wvl']*np.shape(d)[1], df.columns))
     
     # Run NFIND-R with 3 endmembers specified
     x,y = emi.emi(df, col='wvl', emi_method='NFIND-R', n_endmembers=3)
@@ -231,8 +231,8 @@ def test_endmember_ATGP_usingSalinas():
     
     # Build a pandas dataframe with appropriate 2-level
     # multiindex column structure that PyHAT expects
-    df = pd.DataFrame(d, columns=list(np.arange(0,np.shape(data)[1])))
-    df.columns = pd.MultiIndex.from_tuples(zip(['wvl']*np.shape(data)[1], df.columns))
+    df = pd.DataFrame(d, columns=list(np.arange(0,np.shape(d)[1])))
+    df.columns = pd.MultiIndex.from_tuples(zip(['wvl']*np.shape(d)[1], df.columns))
     
     # Run ATGP with 3 endmembers specified
     x,y = emi.emi(df, col='wvl', emi_method='ATGP', n_endmembers=3)
