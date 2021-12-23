@@ -25,15 +25,6 @@ def test_endmember_PPI_usingSalinas():
     img  = gdal.Open(fp)
     data = img.ReadAsArray()
     
-    '''
-    # Unravel the image into a row of pixels (2-D array)
-    data = np.reshape(data.T, (75*16, 205))
-    
-    # The first band is the groundtruth (terrain type)
-    gt   = data[:,0]
-    # The subsequent bands are spectral intensities
-    data = data[:,1:]'''
-    
     # Unraveling the image data into a row of pixels
     # (2-D array) the stupid way. This is guaranteed to
     # preserve order in a predictable way.
@@ -87,15 +78,6 @@ def test_endmember_FIPPI_usingSalinas():
     img  = gdal.Open(fp)
     data = img.ReadAsArray()
     
-    '''
-    # Unravel the image into a row of pixels (2-D array)
-    data = np.reshape(data.T, (75*16, 205))
-    
-    # The first band is the groundtruth (terrain type)
-    gt   = data[:,0]
-    # The subsequent bands are spectral intensities
-    data = data[:,1:]'''
-    
     # Unraveling the image data into a row of pixels
     # (2-D array) the stupid way. This is guaranteed to
     # preserve order in a predictable way.
@@ -148,15 +130,6 @@ def test_endmember_NFINDR_usingSalinas():
     img  = gdal.Open(fp)
     data = img.ReadAsArray()
       
-    '''
-    # Unravel the image into a row of pixels (2-D array)
-    data = np.reshape(data.T, (75*16, 205))
-    
-    # The first band is the groundtruth (terrain type)
-    gt   = data[:,0]
-    # The subsequent bands are spectral intensities
-    data = data[:,1:]'''
-    
     # Unraveling the image data into a row of pixels
     # (2-D array) the stupid way. This is guaranteed to
     # preserve order in a predictable way.
@@ -205,15 +178,6 @@ def test_endmember_ATGP_usingSalinas():
     # Open the tif with gdal, and turn it into an array
     img  = gdal.Open(fp)
     data = img.ReadAsArray()
-      
-    '''
-    # Unravel the image into a row of pixels (2-D array)
-    data = np.reshape(data.T, (75*16, 205))
-    
-    # The first band is the groundtruth (terrain type)
-    gt   = data[:,0]
-    # The subsequent bands are spectral intensities
-    data = data[:,1:]'''
     
     # Unraveling the image data into a row of pixels
     # (2-D array) the stupid way. This is guaranteed to
