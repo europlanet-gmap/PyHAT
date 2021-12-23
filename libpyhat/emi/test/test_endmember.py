@@ -124,7 +124,7 @@ def test_endmember_FIPPI_usingSalinas():
     # Ordering of the endmembers seems to be consistent so
     # they're not sorted.
     # FIPPI results in ENVI matched those of PPI in ENVI (gt=0, 0, and 14).
-    np.testing.assert_equal(d[y,0], [14, 14, 0, 0, 0])
+    np.testing.assert_equal(gt[y], [14, 14, 0, 0, 0])
 
 def test_endmember_NFINDR_usingSalinas():
     '''Intuitive tests the NFIND-R function using real world labeled 
@@ -182,7 +182,7 @@ def test_endmember_NFINDR_usingSalinas():
     # In testing, Pysptools' NFIND-R found gt=0, gt=0, and gt=14.
     # Ordering of the endmembers is not consistent from run to run,
     # so sorting is necessary.
-    np.testing.assert_equal(np.sort(d[y,0]), [0, 0, 14])
+    np.testing.assert_equal(np.sort(gt[y]), [0, 0, 14])
 
 def test_endmember_ATGP_usingSalinas():
     '''Intuitive tests the ATGP function using real world labeled 
@@ -240,7 +240,7 @@ def test_endmember_ATGP_usingSalinas():
     # In testing, Pysptools' ATGP found gt=0, gt=14, and gt=0.
     # Ordering of the endmembers seems to be consistent from run to run,
     # so we do not sort.
-    np.testing.assert_equal(d[y,0], [0, 14, 0])
+    np.testing.assert_equal(gt[y], [0, 14, 0])
     
     # Note: ENVI's ATGP found exact matches to these endmembers.
     np.testing.assert_equal(y, [568, 8, 147])
