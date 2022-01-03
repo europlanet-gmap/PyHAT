@@ -125,12 +125,12 @@ def test_dimred_tSNE():
         'perplexity': 30,
         'init': 'pca'}
     df, dimred_obj = dim_red.dim_red(df, 'wvl', 't-SNE', [], params)
-    expected_div = 0.38829776644706726
-    expected_scores = [9938.469727, -802.161682]
+    expected_div = 0.4136388897895813
+    expected_scores = np.array([9398.069336, -73.208405],dtype=float)
 
     assert df['t-SNE (wvl)'].shape == (103, 2)
-    np.testing.assert_almost_equal(expected_div, dimred_obj.kl_divergence_)
-    np.testing.assert_array_almost_equal(expected_scores, np.array(df['t-SNE (wvl)'].iloc[0, :]))
+    np.testing.assert_almost_equal(expected_div, dimred_obj.kl_divergence_,decimal=4)
+    np.testing.assert_array_almost_equal(expected_scores, np.array(df['t-SNE (wvl)'].iloc[0, :],dtype=float),decimal=4)
 
 
 def test_dimred_FastICA():
@@ -224,7 +224,6 @@ def test_dimred_LDA():
            'n_init': 10,
            'max_iter': 100,
            'tol': 0.01,
-           'n_jobs': 1,
            'random_state': 1}
     cluster.cluster(df, 'wvl', 'K-Means', [], kws)
     params = {'n_components': 3}

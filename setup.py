@@ -35,7 +35,7 @@ setup(
         'Programming Language :: Python :: 3.8',
     ],
     packages=find_packages(),
-    install_requires=['numpy', 'pandas', 'scipy', 'gdal', 'plio'],
+    install_requires=['numpy', 'pandas', 'scipy', 'plio'],
     extras_require={
         'dev': [],
         'test': ['coverage', 'pytest-cov', 'coveralls'],
