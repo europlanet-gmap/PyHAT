@@ -39,7 +39,6 @@ requirements:
     - plio
     - matplotlib
     - pywavelets
-
   - python>=3.7
   - numpy
   - pandas
@@ -63,3 +62,4 @@ test:
 about:
   home: https://github.com/USGS-Astrogeology/PyHAT
   license: Unlicense
+  
