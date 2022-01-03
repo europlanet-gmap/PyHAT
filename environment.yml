@@ -16,5 +16,7 @@ dependencies:
   - pywavelets
   - pip
   - networkx>=2.5
+  - gdal < 3
   - pip:
     - pysptools
+    - spectral
