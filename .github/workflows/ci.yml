@@ -48,6 +48,7 @@ jobs:
       - name: Install Python Package
         run: |
           conda install pip setuptools
+          python -m pip install pysptools
           conda install --quiet pytest pytest-cov nbsphinx
           python setup.py install
       - name: Check build environment

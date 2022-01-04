@@ -174,15 +174,15 @@ def test_dimred_NNMF():
     np.testing.assert_array_almost_equal(expected_scores, np.array(df['NNMF (wvl)'].iloc[0, :]))
 
 
-def test_dimred_NNMF_withRealWorldData():
-    '''Tests the LDA function using real world labeled LIBS data.'''
-
+def test_dimred_NNMF_usingLIBS():
+    '''Intuitive tests the NNMF function using real world labeled LIBS data.'''
+    
     # Open the test dataset, which contains LIBS library spectra
     df = pd.read_csv(get_path('labeled_LIBS_testfile.csv'), header=[0, 1])
-
+    
     # NMF requires all positive values, let's set the floor to 0
     df['wvl'] = np.where(df['wvl'].values < 0, 0, df['wvl'].values)
-
+    
     # Set up the parameters for the NMF algorithm
     # The number of components and iterations are increased because NMF
     # doesn't tend to converge nicely with this dataset. Might need
@@ -191,15 +191,15 @@ def test_dimred_NNMF_withRealWorldData():
     # NMF won't run in PyHAT without the add_constant param defined
     params = {}
     kws = {'add_constant': False, 'n_components': 2, 'max_iter': 20000}
-
+    
     # Run NMF
     df, dimred_obj = dim_red.dim_red(df, 'wvl', 'NNMF', params=params, kws=kws, ycol='Geologic name')
-
+    
     # Find the indicies that correspond to the spectra and NMF results
     # for the two labeled rock types
     ind_bas = np.where(df['Geologic name'].values == 'Basalt')[0]
     ind_and = np.where(df['Geologic name'].values == 'Andesite')[0]
-
+    
     # Simple test is to check the centers of the clusters. They should
     # be distinct enough, and this was verified visually in writing the test.
     and_center = np.mean(np.array([df['NNMF (wvl)']['NNMF-1'].values[ind_and], df['NNMF (wvl)']['NNMF-2'].values[ind_and]]),
@@ -207,7 +207,7 @@ def test_dimred_NNMF_withRealWorldData():
     bas_center = np.mean(np.array([df['NNMF (wvl)']['NNMF-1'].values[ind_bas], df['NNMF (wvl)']['NNMF-2'].values[ind_bas]]),
                          axis=1)
     np.testing.assert_almost_equal(np.abs(bas_center - and_center), [1316662.64123436, 1196221.16644762])
-
+    
     # Also, let's make sure to do a simple check to make sure
     # the clusters are well seperated (by 2 standard deviations of their
     # average standard deviation along the two components).
@@ -217,9 +217,64 @@ def test_dimred_NNMF_withRealWorldData():
     np.testing.assert_array_less(np.array([2 * stds]), np.array([dist]))
 
 
+def test_dimred_NNMF_usingSalinas():
+    '''Intuitive tests the NNMF function using real world labeled Salinas data.
+    
+    Note: NMF in R does not order the components similarly and it is
+    difficult to find an identical parameter set between R and scikit-learn
+    to produce a numerical verification. However, the following test on
+    component 1 and 2 for 'W' passed in R.'''
+    
+    # Open the test dataset, which contains Salinas spectra
+    df = pd.read_csv(get_path('labeled_Salinas_testfile.csv'), header=[0])
+    
+    # Find the indicies that correspond to the spectra and NMF results
+    # for the two labeled vegetation types in the ground truth ('gt') column
+    ind_2 = np.where(df['gt'].values == 2)[0]
+    ind_6 = np.where(df['gt'].values == 6)[0]
+    ind_2_6 = np.concatenate([ind_2, ind_6])
+    
+    # Let's cull the dataset of all ground truths (vegetation types) that
+    # don't correspont to type 2 and 6
+    df = df.loc[ind_2_6]
+    
+    # NMF requires all positive values, let's set the floor to 0
+    # First we'll need to grab the columns with spectral data
+    cols     = list(df.columns[4:-1])
+    df[cols] = np.where(df[cols].values < 0, 0, df[cols].values)
+    
+    # Set up the parameters for the NMF algorithm
+    # The number of components and iterations are increased because NMF
+    # doesn't tend to converge nicely with this dataset. Might need
+    # more samples in each category to get it behave
+    # NMF won't run in PyHAT without the add_constant param defined
+    params = {}
+    kws = {'add_constant': False, 'n_components': 2, 'max_iter': 20000}
+    
+    # Run NMF
+    df, dimred_obj = dim_red.dim_red(df, cols, 'NNMF', params=params, kws=kws, ycol='gt')
+    
+    # Find the indicies that correspond to the spectra and NMF results
+    # for the two labeled vegetation types in the ground truth ('gt') column
+    ind_2 = np.where(df['gt'].values == 2)[0]
+    ind_6 = np.where(df['gt'].values == 6)[0]
+    
+    # Simple test is to check the centers of the clusters. They should
+    # be distinct enough, and this was verified visually in writing the test.
+    center_2 = np.median(np.array([df.iloc[:,-1].values[ind_2], df.iloc[:,-2].values[ind_2]]), axis=1)
+    center_6 = np.median(np.array([df.iloc[:,-1].values[ind_6], df.iloc[:,-2].values[ind_6]]), axis=1)
+    np.testing.assert_almost_equal(np.abs(center_2 - center_6), [46.34637998, 24.59875791])
+    
+    # Also, let's make sure to do a simple check to make sure
+    # the clusters are well seperated (by 2 standard deviations of their
+    # summed standard deviation in both components).
+    stds = np.std(df.iloc[:,-2:].values[ind_2], axis=0) + np.std(df.iloc[:,-2:].values[ind_6], axis=0)      
+    dist = np.abs(center_2 - center_6)
+    np.testing.assert_array_less(np.array([2 * stds]), np.array([dist]))
+
+
 def test_dimred_LDA():
     df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
-
     kws = {'n_clusters': 5,
            'n_init': 10,
            'max_iter': 100,
@@ -235,8 +290,9 @@ def test_dimred_LDA():
     np.testing.assert_array_almost_equal(expected_coefs, np.sort(np.abs(dimred_obj.coef_[:, 0])))
     np.testing.assert_array_almost_equal(expected_scores, np.sort(np.abs(np.array(df['LDA (wvl)'].iloc[0, :]))))
 
-def test_dimred_LDA_withRealWorldData():
-    '''Tests the LDA function using real world labeled LIBS data.'''
+
+def test_dimred_LDA_usingLIBS():
+    '''Intuitive tests the LDA function using real world labeled LIBS data.'''    
     
     #Open the test dataset, which contains LIBS library spectra
     df = pd.read_csv(get_path('labeled_LIBS_testfile.csv'), header=[0, 1])
@@ -257,13 +313,156 @@ def test_dimred_LDA_withRealWorldData():
     ind_and = np.where(df['Geologic name'].values=='Andesite')[0]
     
     #Simple test is to check the distance of the center of the clusters.
-    dist = np.median(df['LDA']['LDA-1'].values[ind_bas]) - np.median(df['LDA']['LDA-1'].values[ind_and])
-    np.testing.assert_almost_equal(np.abs(dist), 5.367776196776056)
+    dist = np.abs(np.median(df['LDA']['LDA-1'].values[ind_bas]) - np.median(df['LDA']['LDA-1'].values[ind_and]))
+    np.testing.assert_almost_equal(dist, 5.367776196776056)
     
     #Also, let's make sure to do a simple check to make sure
     #the clusters are well seperated (by 2 standard deviations).
     stds = np.std(df['LDA']['LDA-1'].values[ind_bas]) + np.std(df['LDA']['LDA-1'].values[ind_and])
     np.testing.assert_array_less(np.array([2*stds]), np.array([dist]))
+
+
+def test_dimred_LDA_usingSalinas():
+    '''Intuitive tests the LDA function using real world labeled Salinas data.'''
+    
+    #Open the test dataset, which contains Salinas library spectra
+    df = pd.read_csv(get_path('labeled_Salinas_testfile.csv'), header=[0])
+    
+    #Set up the parameters for the LDA algorithm. There are only
+    #two labels that we're looking at, so there can only be a single component
+    params = {}
+    kws    = {'n_components': 1}
+    
+    #Grab the columns that contain spectral data
+    cols = list(df.columns[4:-1])
+    
+    #LDA should should present us with distinct clusters with respect to the labels
+    df, dimred_obj = dim_red.dim_red(df, cols, 'LDA', params=params, kws=kws, ycol='gt')
+    
+    #Find the rows that correspond to the ground truth ('gt' column) with
+    #vegetation type 2 and 6
+    ind_2 = np.where(df['gt'].values==2)[0]
+    ind_6 = np.where(df['gt'].values==6)[0]
+    
+    #Simple test is to check the distance of the center of the clusters.
+    dist = np.abs(np.median(df.iloc[:,-1].values[ind_2]) - np.median(df.iloc[:,-1].values[ind_6]))
+    np.testing.assert_almost_equal(dist, 4.293384107071617)
+    
+    #The same test, but using output from R (version 4.1.0) and the LDA function
+    #within MASS (version 7.3-54). Provided by Itiya Aneece.
+    np.testing.assert_almost_equal(dist, 4.29338410707116) 
+    
+    #Also, let's make sure to do a simple check to make sure
+    #the clusters are well seperated (by 2 standard deviations).
+    stds = np.std(df.iloc[:,-1].values[ind_2]) + np.std(df.iloc[:,-1].values[ind_6])
+    np.testing.assert_array_less(np.array([2*stds]), np.array([dist]))
+    
+    #Test the numerical values of 2 standard deviations with output from R.
+    #See two comments above.
+    #Note: the np.std function computes the population standard deviation, not
+    #sample standard deviation, which is computed by STDEV in excel and the 
+    #aggregate function in R 
+    stds = np.std(df.iloc[:,-1].values[ind_2], ddof=1) + np.std(df.iloc[:,-1].values[ind_6], ddof=1)
+    np.testing.assert_almost_equal(2*stds, 2.53882297107126)
+
+
+def test_dimred_MNF():
+    df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
+    params = {'n_components': 4}
+    df, dimred_obj = dim_red.dim_red(df, 'wvl', 'MNF', [], params)
+    score_result = np.sort(np.array(df['MNF (wvl)'].iloc[0, :]))
+    expected_scores = [-36.6691721, -5.29645881, -3.63660052, 598.27972428]
+    np.testing.assert_array_almost_equal(expected_scores, score_result)
+
+    mnf = MNF()
+    x = np.array(df['wvl'])
+    try:
+        comps = mnf.fit_transform('foo')  # test the case where the wrong type of data is passed
+
+    except:
+        try:
+            comps = mnf.fit_transform(x.T)  # test the case where # of wvls is > # of samples
+        except:
+
+            comps = mnf.fit_transform(x)  # test the case where a numpy array is passed
+            score_result = np.sort(np.sort(comps[0, :]))
+            expected_scores = [-36.6691721, -5.29645881, -3.63660052, 598.27972428]
+            np.testing.assert_array_almost_equal(expected_scores, score_result)
+
+
+def test_dimred_MNF_usingLIBS():
+    '''Intuitive tests the MNF function using real world labeled LIBS data.'''
+    
+    #Open the test dataset, which contains LIBS library spectra
+    df = pd.read_csv(get_path('labeled_LIBS_testfile.csv'), header=[0, 1])
+    
+    #Set up parameters and arguments for MNF
+    params = {}
+    kws    = {'n_components':2}
+    
+    #Grab the andesite data
+    ind_and = np.where(df['Geologic name'].values=='Andesite')[0]
+    
+    #Run MNF on a single type of sample, so it can determine the
+    #channels for that spectra, which should be relatively consistent,
+    #experimental factors held constant (assumption).
+    df, dimred_obj = dim_red.dim_red(df.loc[ind_and], 'wvl', 'MNF',  params=params, kws=kws)
+    
+    #Using the MNF transform, let's ask it to give us the signal
+    #and noise channels for the first andesite spectrum
+    x1 = dimred_obj.fit_transform(df['wvl'].values.T)[:,0] #first component (signal)
+    x2 = dimred_obj.fit_transform(df['wvl'].values.T)[:,1] #second component (noise)
+    
+    #Now let's check that there's good correlation with the data
+    #and the signal channel, but poor correlation with the noise channel
+    from scipy.stats import pearsonr
+    r = pearsonr(df['wvl'].values.T[:,0], x1)
+    
+    #Let's make sure this is near 1
+    np.testing.assert_array_almost_equal(np.array(r), [0.99724445, 0.        ])
+    
+    #Let's also make sure the noise channel has poor correlation
+    r = pearsonr(df['wvl'].values.T[:,0], x2)
+    np.testing.assert_array_almost_equal(np.array(r), [0.05240176, 0.24263178])
+
+
+def test_dimred_MNF_usingSalinas():
+    '''Intuitive tests the MNF function using real world labeled Salinas data.'''
+    
+    #Open the test dataset, which contains labeled Salinas spectra
+    df = pd.read_csv(get_path('labeled_Salinas_testfile.csv'), header=[0])
+    
+    #Set up parameters and arguments for MNF
+    params = {}
+    kws    = {'n_components':2}
+    
+    #Grab the data for vegetation type 2, which is in the ground truth
+    #('gt') column
+    ind_2 = np.where(df['gt'].values==2)[0]
+    
+    #Run MNF on a single type of sample, so it can determine the
+    #channels for that spectra, which should be relatively consistent,
+    #experimental factors held constant (assumption).
+    cols = list(df.columns[4:-1])
+    df, dimred_obj = dim_red.dim_red(df.loc[ind_2], cols, 'MNF',  params=params, kws=kws)
+    
+    #Using the MNF transform, let's ask it to give us the signal
+    #and noise channels for the first spectrum for type 2
+    x1 = dimred_obj.fit_transform(df[cols].values.T)[:,0] #first component (signal)
+    x2 = dimred_obj.fit_transform(df[cols].values.T)[:,1] #second component (noise)
+    
+    #Now let's check that there's good correlation with the data
+    #and the signal channel, but poor correlation with the noise channel
+    from scipy.stats import pearsonr
+    r = pearsonr(df[cols].values.T[:,0], x1)
+    
+    #Let's make sure this is near 1
+    np.testing.assert_array_almost_equal(np.array(r), [0.9995890033162632, 1.38544234117e-313])
+    
+    #Let's also make sure the noise channel has poor correlation
+    r = pearsonr(df[cols].values.T[:,0], x2)
+    np.testing.assert_array_almost_equal(np.array(r), [-0.028356585032974967, 0.6872386081577025])
+
 
 def test_dimred_LFDA():
     # df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
@@ -304,25 +503,84 @@ def test_dimred_LFDA():
     np.testing.assert_array_almost_equal(expected_values, df.iloc[0:5, -1])
 
 
-def test_dimred_MNF():
-    df = pd.read_csv(get_path('test_data.csv'), header=[0, 1])
-    params = {'n_components': 4}
-    df, dimred_obj = dim_red.dim_red(df, 'wvl', 'MNF', [], params)
-    score_result = np.sort(np.array(df['MNF (wvl)'].iloc[0, :]))
-    expected_scores = [-36.6691721, -5.29645881, -3.63660052, 598.27972428]
-    np.testing.assert_array_almost_equal(expected_scores, score_result)
+def test_dimred_LFDA_usingLIBS():
+    '''Intuitive tests the LFDA function using real world labeled LIBS data.
+    
+    Note: Tried developing tests for array equivalence, but LFDA is rather 
+    inconsistent in how it chooses the location of the two clusters
+    and their absolute locations. For now, the test is only for separability.
+    This *may* have changed in the latest version of scikit-learn (?)'''
+    
+    #Open the test dataset, which contains LIBS library spectra
+    df = pd.read_csv(get_path('labeled_LIBS_testfile.csv'), header=[0, 1])
+    
+    #Set up parameters and arguments for LFDA. For a super simple test,
+    #we can use a single dimension to verify that LFDA can seperate between
+    #the basalt and andesite labels. We just assume a single cluster in 
+    #the local space (knn)
+    params = {}
+    kws    = {'r':1, 'metric':'plain', 'knn':1}
+    
+    #Perform LFDA
+    df, dimred_obj = dim_red.dim_red(df, 'wvl', 'LFDA', params=params, kws=kws, ycol='Geologic name')
+    
+    #Grab the indicies of the two labels
+    ind_bas = np.where(df['Geologic name'].values=='Basalt')[0]
+    ind_and = np.where(df['Geologic name'].values=='Andesite')[0]
+    
+    #Compute the mean and standard deviation of the two sample types
+    c1_bas = df['LFDA (wvl)']['LFDA-1'].values[ind_bas]
+    c1_and = df['LFDA (wvl)']['LFDA-1'].values[ind_and]
+    m1_bas = np.mean(c1_bas)
+    m1_and = np.mean(c1_and)
+    s1_bas_and = np.std(c1_bas)+np.std(c1_and)
+    
+    #Verify that there are two *very* seperable clusters in component 1
+    #by comparing their distance to 10000 times their combined standard deviations
+    np.testing.assert_array_less(s1_bas_and*1000, np.abs(m1_bas-m1_and))
 
-    mnf = MNF()
-    x = np.array(df['wvl'])
-    try:
-        comps = mnf.fit_transform('foo')  # test the case where the wrong type of data is passed
 
-    except:
-        try:
-            comps = mnf.fit_transform(x.T)  # test the case where # of wvls is > # of samples
-        except:
-
-            comps = mnf.fit_transform(x)  # test the case where a numpy array is passed
-            score_result = np.sort(np.sort(comps[0, :]))
-            expected_scores = [-36.6691721, -5.29645881, -3.63660052, 598.27972428]
-            np.testing.assert_array_almost_equal(expected_scores, score_result)
+def test_dimred_LFDA_usingSalinas():
+    '''Intuitive tests the LFDA function using real world labeled Salinas data.
+    
+    Note: Tried developing tests for array equivalence, but LFDA is rather 
+    inconsistent in how it chooses the location of the two clusters
+    and their absolute locations. For now, the test is only for separability.
+    This *may* have changed in the latest version of scikit-learn (?)'''
+    
+    #Open the test dataset, which contains labeled Salinas spectra
+    df = pd.read_csv(get_path('labeled_Salinas_testfile.csv'), header=[0])
+    
+    #Find the rows that correspond to the ground truth ('gt' column) with
+    #vegetation type 2 and 6
+    ind_2 = np.where(df['gt'].values==2)[0]
+    ind_6 = np.where(df['gt'].values==6)[0]
+    ind_2_6 = np.concatenate([ind_2, ind_6])
+    
+    #Let's only use the rows with types 2 and 6
+    df = df.loc[ind_2_6]
+    
+    #Set up parameters and arguments for LFDA. For a super simple test,
+    #we can use a single dimension to verify that LFDA can seperate between
+    #label 2 and 6, which are distinct vegetation type.
+    #We just assume a single cluster in the local space (knn)
+    params = {}
+    kws    = {'r':1, 'metric':'plain', 'knn':1}
+    
+    #Perform LFDA
+    cols = list(df.columns[4:-1])
+    df, dimred_obj = dim_red.dim_red(df, cols, 'LFDA', params=params, kws=kws, ycol='gt')
+    
+    #Compute the mean and standard deviation of the two sample types
+    #First, find their indicies in the new dataframe
+    ind_2 = np.where(df['gt'].values==2)[0]
+    ind_6 = np.where(df['gt'].values==6)[0]
+    c1_2 = df.iloc[:,-1].values[ind_2]
+    c1_6 = df.iloc[:,-1].values[ind_6]
+    m1_2 = np.mean(c1_2)
+    m1_6 = np.mean(c1_6)
+    s1_2_6 = np.std(c1_2)+np.std(c1_6)
+    
+    #Verify that there are two *very* seperable clusters in component 1
+    #by comparing their distance to 10000 times their combined standard deviations
+    np.testing.assert_array_less(s1_2_6*1000, np.abs(m1_2 - m1_6))
