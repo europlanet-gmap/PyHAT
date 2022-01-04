@@ -161,7 +161,7 @@ def test_endmember_ATGP_usingSalinas():
     '''Intuitive tests the ATGP function using real world labeled 
     Salinas data.
     
-    Note: The underlying Salinas dataset contains several labels 
+    Note: The Salinas dataset contains several labels 
     ('ground truths') that correspond to specific crop types:
     gt=0  Area in-between crop fields; can have a huge range of spectral characteristics
     gt=9  soil-vineyard-develop
