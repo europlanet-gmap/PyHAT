@@ -27,8 +27,9 @@ requirements:
     - pywavelets
     - pip
     - networkx>=2.5
-    - pysptools
-    - spectral
+    - pip:
+      - pysptools
+      - spectral
   run:
     - python x.x
     - numpy=1.21.5
@@ -41,8 +42,9 @@ requirements:
     - plio
     - matplotlib
     - pywavelets
-    - pysptools
-    - spectral
+    - pip:
+      - pysptools
+      - spectral
 
 test:
   imports:
