@@ -103,7 +103,7 @@ def local_rmse_calc(test_predicts, test_actuals, unk_predicts, windowsize=0.0, m
             # #Remove duplicate dummy RMSEP values
             dummy_rmseps_presmooth, dummypredicts_presmooth = remove_duplicates(dummy_rmseps_orig, dummypredicts_orig)
 
-            if full_fit:
+            if extrapolate and full_fit:
                 dummy_rmseps_presmooth,dummypredicts_presmooth = extrap_full(dummypredicts_presmooth, dummy_rmseps_presmooth, xmax)
 
             # Re-interpolate (linear) to cover the gaps so that blending works ok
@@ -121,7 +121,7 @@ def local_rmse_calc(test_predicts, test_actuals, unk_predicts, windowsize=0.0, m
             if extrapolate and not full_fit:
                 dummy_rmseps_extrap, dummypredicts_extrap = extrap_last_min(dummypredicts_smooth, dummy_rmseps_smooth, xmax)
 
-            else:
+            if not extrapolate:
                 dummy_rmseps_extrap = dummy_rmseps_smooth
                 dummypredicts_extrap = dummypredicts_smooth
 
@@ -159,10 +159,13 @@ def generate_dummy(test_predicts, test_actuals, minval, win, xmax):
                 dummy_rmseps[j] = np.nan
     return dummy_rmseps, dummypredicts
 
-def loacl_rmse_explore(test_predicts,test_actuals,windowsize = [0.0], min_rmsep_num = [40], outpath = '', plot_file=None, element='',
+def local_rmse_explore(test_predicts,test_actuals,windowsize = [0.0], min_rmsep_num = [40], outpath = '', plot_file=None, element='',
                  sigma = None, extrapolate = True, full_fit = False, xmax = 120):
     test_predicts = np.array(test_predicts)
     test_actuals = np.array(test_actuals)
+    if not extrapolate:
+        print('Not extrapolating. Setting xmax to max of predicts.')
+        xmax = np.max(test_predicts)
 
     extrap = ''
     for minval in min_rmsep_num:
@@ -183,7 +186,7 @@ def loacl_rmse_explore(test_predicts,test_actuals,windowsize = [0.0], min_rmsep_
                         #mark the points that are not removed as duplicates
                         plot.plot(dummypredicts_presmooth, dummy_rmseps_presmooth, linestyle='',marker='*',markersize=4,color = 'black',label='Unique Values')
 
-                    if full_fit:
+                    if extrapolate and full_fit:
                         dummy_rmseps_presmooth, dummypredicts_presmooth = extrap_full(dummypredicts_presmooth, dummy_rmseps_presmooth, xmax)
 
 
@@ -199,14 +202,12 @@ def loacl_rmse_explore(test_predicts,test_actuals,windowsize = [0.0], min_rmsep_
                         dummy_rmseps_smooth=gaussian_filter1d(dummy_rmseps_interp,s, mode='nearest')
                         dummypredicts_smooth = dummypredicts_interp
                         dummy_rmseps_smooth, dummypredicts_smooth = remove_duplicates(dummy_rmseps_smooth, dummypredicts_smooth)
+                        dummy_rmseps_extrap = dummy_rmseps_smooth
+                        dummypredicts_extrap = dummypredicts_smooth
 
                         if extrapolate and not full_fit:
                             dummy_rmseps_extrap, dummypredicts_extrap = extrap_last_min(dummypredicts_smooth,
                                                                                         dummy_rmseps_smooth, xmax)
-
-                        else:
-                            dummy_rmseps_extrap = dummy_rmseps_smooth
-                            dummypredicts_extrap = dummypredicts_smooth
 
                         if plot_file is not None: #plot each smoothed curve
                             plot.plot(dummypredicts_extrap, dummy_rmseps_extrap, label ='sigma = '+str(s),linestyle='-', marker=None)
@@ -217,6 +218,8 @@ def loacl_rmse_explore(test_predicts,test_actuals,windowsize = [0.0], min_rmsep_
 
                #optionally plot the results
                 if plot_file is not None:
+                    print('Plotting:')
+                    print('Window: ' + str(win) + '; Min #: ' + str(minval) + '; Sigma: ' + str(sigma))
                     if sigma is None:
                         plot.plot(dummypredicts,dummy_rmseps,linestyle='-',marker = 'o',label='Window = '+str(round(win,1))+'; min = '+str(round(minval,1)))
                         outdata = pd.DataFrame()
@@ -225,7 +228,7 @@ def loacl_rmse_explore(test_predicts,test_actuals,windowsize = [0.0], min_rmsep_
                         outdata.to_csv(outpath+"/"+"local_rmsep_win" + str(win) + '_n' + str(minval) + '.csv')
 
                     ax = plot.gca()
-                    ax.set_xlim([0, np.min([100,2*np.max(test_actuals)])])
+                    ax.set_xlim([0, np.min([xmax,2*np.max(test_actuals)])])
                     ax.set_ylim([0,2*np.max(dummy_rmseps_orig)])
                     ax.set_title(element+' - Window = '+str(round(win,2))+'; Min # = '+str(minval))
 

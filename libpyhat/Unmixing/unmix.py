@@ -1,16 +1,21 @@
 import numpy as np
-from pysptools.abundance_maps import NNLS,FCLS
+from pysptools.abundance_maps import NNLS,FCLS,UCLS
+#import MESMA
 import pandas as pd
 
 
 def unmix(data, endmembers, normalize, mask, col = 'wvl', unmix_method = 'NNLS',):
-    supported_methods = ("NNLS","FCLS")
+    supported_methods = ("NNLS","FCLS","UCLS")#,"MESMA")
     try:
         if unmix_method.upper() in supported_methods:
             if unmix_method == 'NNLS':
                 method = NNLS()
             if unmix_method == 'FCLS':
                 method = FCLS()
+            if unmix_method == 'UCLS':
+                method = UCLS()
+            # if unmix_method == "MESMA":
+            #     method = MESMA()
 
         else:
             print(f"{unmix_method} is not a supported method.  Supported methods are {supported_methods}")
