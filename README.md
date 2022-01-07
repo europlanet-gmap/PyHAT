@@ -11,13 +11,15 @@
   - Activate the PyHAT environment: `conda activate pyhat` (for windows: `conda pyhat`)
   - Add conda forge to your channels list: `conda config --env --add channels conda-forge`
   - To install: `conda install -c usgs-astrogeology pyhat`
+  - Manually install pip packages: `pip install pysptools spectral`
 
 # Installation - For Developers
   - Install [Anaconda Python](https://www.continuum.io/downloads).  Be sure to get Python 3.x
   - Create a conda env for PyHAT: `conda create -n pyhat`.  
   - Activate the PyHAT environment: `conda activate pyhat` (for windows: `conda pyhat`)
   - Add conda forge to your channels list: `conda config --env --add channels conda-forge` 
-  - Install the dependencies: `conda env update -f environment.yml`.  
+  - Install the dependencies: `conda env update -f environment.yml`. 
+  - Manually install pip packages: `pip install pysptools spectral` 
   - Clone this repo: `git clone https://github.com/USGS-Astrogeology/PyHAT`.
   - Enter the cloned repo: `cd PyHAT`.
   - Pull the `dev` branch: `git fetch && git checkout dev`.
