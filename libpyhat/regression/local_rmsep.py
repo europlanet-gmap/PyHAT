@@ -118,10 +118,13 @@ def local_rmse_calc(test_predicts, test_actuals, unk_predicts, windowsize=0.0, m
             dummypredicts_smooth = dummypredicts_interp
             dummy_rmseps_smooth, dummypredicts_smooth = remove_duplicates(dummy_rmseps_smooth, dummypredicts_smooth)
 
-            if extrapolate and not full_fit:
-                dummy_rmseps_extrap, dummypredicts_extrap = extrap_last_min(dummypredicts_smooth, dummy_rmseps_smooth, xmax)
-
-            if not extrapolate:
+            if extrapolate:
+                if full_fit:
+                    dummypredicts_extrap = dummypredicts_smooth
+                    dummy_rmseps_extrap = dummy_rmseps_smooth
+                else:
+                    dummy_rmseps_extrap, dummypredicts_extrap = extrap_last_min(dummypredicts_smooth, dummy_rmseps_smooth, xmax)
+            else:
                 dummy_rmseps_extrap = dummy_rmseps_smooth
                 dummypredicts_extrap = dummypredicts_smooth
 
