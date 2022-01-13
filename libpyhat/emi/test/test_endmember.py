@@ -257,7 +257,7 @@ def test_endmember_SMACC_usingSalinas():
     # with ENVI's SMACC algorithm.
     # Ordering of the endmembers seems to be consistent from run to run,
     # so sorting isn't necessary.
-    np.testing.assert_equal(np.sort(gt[y]), [14, 0, 0])
+    np.testing.assert_equal(gt[y], [14, 0, 0])
     
     # Note: ENVI's SMACC found near exact matches to these endmembers.
     np.testing.assert_equal(y, [8, 294, 568])
