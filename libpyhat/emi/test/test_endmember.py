@@ -260,4 +260,4 @@ def test_endmember_SMACC_usingSalinas():
     np.testing.assert_equal(gt[y], [14, 0, 0])
     
     # Note: ENVI's SMACC found near exact matches to these endmembers.
-    np.testing.assert_equal(y, [8, 294, 568])
+    np.testing.assert_equal(np.where(y==True)[0], [8, 294, 568])
