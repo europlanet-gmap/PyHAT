@@ -7,7 +7,7 @@ from osgeo import gdal
 def test_endmember_PPI_usingSalinas():
     '''Intuitive tests the PPI function using real world labeled 
     Salinas data.
-    
+     
     Note: The underlying Salinas dataset contains several labels 
     ('ground truths') that correspond to specific crop types:
     gt=0  Area in-between crop fields; can have a huge range of spectral characteristics
