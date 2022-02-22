@@ -53,7 +53,7 @@ def prepare_data(A,B,dataAmatchcol,dataBmatchcol):
             print('Averaging data set A spectra: '+value)
             temp = pd.DataFrame(A[A[('meta', dataAmatchcol)] == value].mean(axis=0))
             temp.at[('meta', dataAmatchcol), 0] = value
-            A_mean.loc[:, value] = temp
+            A_mean.loc[:, value] = np.squeeze(temp)
         A_mean = A_mean.T
 
     B_uniques = np.unique(B[('meta', dataBmatchcol)])
@@ -66,7 +66,7 @@ def prepare_data(A,B,dataAmatchcol,dataBmatchcol):
             print('Averaging data set B spectra: ' + value)
             temp = pd.DataFrame(B[B[('meta', dataBmatchcol)] == value].mean(axis=0))
             temp.at[('meta', dataBmatchcol), 0] = value
-            B_mean.loc[:, value] = temp
+            B_mean.loc[:, value] = np.squeeze(temp)
         B_mean = B_mean.T
 
     return A_mean, B_mean

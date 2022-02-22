@@ -97,7 +97,7 @@ def cv_core(i, paramgrid, Train, xcols, ycol, method, yrange):
             else:
                 y_pred_holdout = cv_holdout[ycol] * np.nan
         # add the predictions to the appropriate column in the training data
-        train_temp.at[train_temp.index[holdout], cvcols[0]] = y_pred_holdout
+        train_temp.loc[train_temp.index[holdout], cvcols[0]] = y_pred_holdout
         # append the RMSECV to the list
         output_tmp['Fold ' + str(foldcount)] = RMSE(y_pred_holdout, cv_holdout[ycol])
         pass
