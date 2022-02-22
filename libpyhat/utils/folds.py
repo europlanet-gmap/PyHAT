@@ -36,18 +36,18 @@ def stratified_folds(df, nfolds=5, sortby=None, tiebreaker = None):
 
                 if np.isnan(j):
                     ind2 = df[tiebreaker] == j
-                    df.at[df.index[np.all([ind, ind2], axis=0)], ('meta', 'Folds')] = -1
+                    df.loc[df.index[np.all([ind, ind2], axis=0)], ('meta', 'Folds')] = -1
 
                 else:
                     ind2 = df[tiebreaker] == j
-                    df.at[df.index[np.all([ind,ind2],axis=0)], ('meta', 'Folds')] = fold_num
+                    df.loc[df.index[np.all([ind,ind2],axis=0)], ('meta', 'Folds')] = fold_num
                     # Inrement the fold number, reset to 1 if it is greater than the desired number of folds
                     fold_num = fold_num + 1
                     if fold_num > nfolds:
                         fold_num = 1
         else:
-            df.at[df.index[ind], ('meta', 'Folds')] = fold_num
-            # Inrement the fold number, reset to 1 if it is greater than the desired number of folds
+            df.loc[df.index[ind], ('meta', 'Folds')] = fold_num
+            # Increment the fold number, reset to 1 if it is greater than the desired number of folds
             fold_num = fold_num + 1
             if fold_num > nfolds:
                 fold_num = 1
